@@ -1,0 +1,9 @@
+{
+  "appId": "com.umrah.companion",
+  "appName": "رفيق العمرة",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#14130F"
+  }
+}

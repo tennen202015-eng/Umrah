@@ -1,0 +1,828 @@
+<title>رفيق العمرة</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#14130f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Reem+Kufi:wght@500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
+<style>
+/* Layout: one-column pilgrim console — rite stepper, live 3D scene, counter + confidence row, contextual dua card, thumb controls, folded panels */
+:root{
+  --bg:#f5f3ec;--surface:#fffefa;--ink:#1b1a16;--muted:#6d685c;--line:#e3decf;
+  --gold:#a8812c;--gold-2:#d9b45f;--gold-soft:#f3ead3;--kiswa:#1b1a16;--floor:#ebe7dc;
+  --ok:#2f7a4b;--warn:#b26a12;--bad:#b23a2c;
+  --display:"Reem Kufi","Noto Kufi Arabic","Segoe UI",Tahoma,sans-serif;
+  --body:"IBM Plex Sans Arabic","Noto Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  --naskh:"Amiri","Noto Naskh Arabic","Traditional Arabic",serif;
+}
+:root{--crowd:#9a927f}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#100f0c;--surface:#1a1915;--ink:#f0ebdd;--muted:#a49d8b;--line:#2f2c25;
+  --gold:#d6ae5a;--gold-2:#f0cf86;--gold-soft:#2b2417;--kiswa:#050504;--floor:#1e1d18;--crowd:#6f6857;
+  --ok:#5cb57d;--warn:#e0a24a;--bad:#e2725f;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#100f0c;--surface:#1a1915;--ink:#f0ebdd;--muted:#a49d8b;--line:#2f2c25;
+  --gold:#d6ae5a;--gold-2:#f0cf86;--gold-soft:#2b2417;--kiswa:#050504;--floor:#1e1d18;--crowd:#6f6857;
+  --ok:#5cb57d;--warn:#e0a24a;--bad:#e2725f;color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6;position:relative;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+/* eight-point star lattice, tinted by the theme */
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.07;background:var(--gold);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='black' stroke-width='1.2'%3E%3Crect x='17' y='17' width='30' height='30'/%3E%3Crect x='17' y='17' width='30' height='30' transform='rotate(45 32 32)'/%3E%3Cpath d='M0 0L10 10M64 0L54 10M0 64L10 54M64 64L54 54'/%3E%3C/g%3E%3C/svg%3E") repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='black' stroke-width='1.2'%3E%3Crect x='17' y='17' width='30' height='30'/%3E%3Crect x='17' y='17' width='30' height='30' transform='rotate(45 32 32)'/%3E%3Cpath d='M0 0L10 10M64 0L54 10M0 64L10 54M64 64L54 54'/%3E%3C/g%3E%3C/svg%3E") repeat}
+.app{position:relative;z-index:1;max-width:540px;margin:0 auto;padding-block:14px 32px;display:flex;flex-direction:column;gap:14px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+h1{font-family:var(--display);font-weight:700;font-size:1.6rem;margin:0}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;padding:3px 10px;border-radius:999px;
+  border:1px solid var(--line);background:var(--surface);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.chip i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.chip.ok i{background:var(--ok)}.chip.warn i{background:var(--warn)}.chip.bad i{background:var(--bad)}
+
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;list-style:none;margin:0;padding:0}
+.steps li{border-top:3px solid var(--line);padding-top:5px;font-size:.72rem;color:var(--muted);line-height:1.35;min-width:0}
+.steps li b{display:block;font-family:var(--display);font-weight:500;font-size:.9rem;color:inherit}
+.steps li.on{border-color:var(--gold);color:var(--ink)}
+.steps li.done{border-color:var(--ok);color:var(--ok)}
+
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.phase{font-family:var(--display);font-size:1.05rem;color:var(--gold);padding:12px 16px 0}
+.scene{width:100%;aspect-ratio:1/.82;max-width:100%;display:block}
+.readout{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;padding:4px 16px 14px;border-top:1px solid var(--line)}
+.count{display:flex;align-items:baseline;gap:6px}
+.count .n{font-family:var(--display);font-weight:700;font-size:3.6rem;line-height:1;font-variant-numeric:tabular-nums;display:inline-block}
+.count .n.pop{animation:pop .7s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{0%{transform:scale(.6);color:var(--gold-2)}100%{transform:scale(1)}}
+.count .of{color:var(--muted);font-size:.85rem}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 12px;font-size:.8rem;min-width:0}
+.stats div{display:flex;justify-content:space-between;gap:6px;border-bottom:1px dotted var(--line);font-variant-numeric:tabular-nums}
+.stats span:first-child{color:var(--muted)}
+.meter{grid-column:1/-1;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-2));transition:width .6s}
+.hint{padding:0 16px 14px;font-size:.95rem;text-wrap:balance}
+
+.dua{background:var(--gold-soft);border:1px solid color-mix(in srgb,var(--gold) 35%,transparent);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.dua .k{font-size:.78rem;color:var(--gold);letter-spacing:.02em;font-weight:600}
+.dua .t{font-family:var(--naskh);font-size:1.4rem;line-height:2;text-wrap:balance;margin:0}
+.dua .s{font-size:.78rem;color:var(--muted)}
+.dua .tip{font-size:.86rem;border-top:1px solid color-mix(in srgb,var(--gold) 25%,transparent);padding-top:8px}
+
+.ctrls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button,select,input{font:inherit}
+button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:12px 10px;cursor:pointer;min-height:48px}
+button:hover{border-color:var(--gold)}
+button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+button.primary{background:var(--kiswa);color:#f0dca8;border-color:var(--kiswa);font-weight:600}
+button.wide{grid-column:1/-1}
+button.danger{color:var(--bad)}
+button[disabled]{opacity:.45;cursor:not-allowed}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:2px 14px}
+.panel summary{cursor:pointer;padding:10px 0;font-weight:600}
+.panel .body{display:flex;flex-direction:column;gap:10px;padding-bottom:14px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:end}
+.row>*{flex:1 1 140px}
+label{font-size:.85rem;color:var(--muted);display:block}
+input[type=number],select{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:8px 10px;width:100%}
+.note{font-size:.84rem;color:var(--muted);margin:0}
+.log{list-style:none;margin:0;padding:0;font-variant-numeric:tabular-nums;font-size:.88rem}
+.log li{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--line);padding:6px 0}
+.log li:last-child{border-bottom:0}
+.lib h3{font-family:var(--display);font-weight:500;font-size:1rem;margin:6px 0 0;color:var(--gold)}
+.lib p{margin:0;font-family:var(--naskh);font-size:1.15rem;line-height:1.9}
+.lib small{color:var(--muted);display:block;margin-bottom:6px}
+.math{font-size:.86rem}
+.math b{color:var(--gold)}
+.banner{border:1px solid var(--warn);color:var(--warn);background:var(--gold-soft);border-radius:12px;padding:10px 12px;font-size:.88rem}
+#pocket{position:fixed;inset:0;z-index:50;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  touch-action:none;user-select:none;-webkit-user-select:none;font-family:var(--body);text-align:center;padding:24px}
+#pocket[hidden]{display:none}
+.pk-n{font-family:var(--display);font-weight:700;font-size:8rem;line-height:1;color:#6b5a30;font-variant-numeric:tabular-nums}
+.pk-l{font-family:var(--display);font-size:1.2rem;color:#4d4433}
+.pk-h{font-size:.82rem;color:#3a362d;margin-top:30px}
+.pk-h.hold{color:#a8812c}
+@media (max-width:420px){.count .n{font-size:3rem}.steps li{font-size:.66rem}.steps li b{font-size:.8rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="app" dir="rtl" lang="ar">
+  <header>
+    <h1>رفيق العمرة</h1>
+    <div class="chips">
+      <span class="chip" id="gps"><i></i><span id="gpsTxt">GPS متوقف</span></span>
+      <span class="chip" id="imu"><i></i><span id="imuTxt">الحساسات متوقفة</span></span>
+    </div>
+  </header>
+
+  <ol class="steps">
+    <li id="st0"><b>الإحرام</b>والتلبية</li>
+    <li id="st1"><b>الطواف</b>٧ أشواط</li>
+    <li id="st2"><b>الركعتان</b>وزمزم</li>
+    <li id="st3"><b>السعي</b>٧ أشواط</li>
+    <li id="st4"><b>التحلّل</b>حلق أو تقصير</li>
+  </ol>
+
+  <div class="banner" id="banner" hidden></div>
+
+  <section class="stage" aria-live="polite">
+    <div class="phase" id="phase">في انتظار الوصول للمطاف</div>
+    <canvas class="scene" id="cv" aria-label="مشهد حي لموقعك حول الكعبة أو في المسعى"></canvas>
+    <div class="readout">
+      <div class="count"><span class="n" id="num">٠</span><span class="of" id="of">من ٧</span></div>
+      <div class="stats">
+        <div><span>ثقة العدّ</span><span id="kConf">—</span></div>
+        <div><span>الشوط الحالي</span><span id="kLap">—</span></div>
+        <div><span>المسافة</span><span id="kDist">—</span></div>
+        <div><span>المتبقي تقريباً</span><span id="kEta">—</span></div>
+        <div class="meter"><i id="meter"></i></div>
+      </div>
+    </div>
+    <div class="hint" id="hint">اضغط «تشغيل التتبع» وأنت داخل الحرم، أو جرّب المحاكاة بالأسفل.</div>
+  </section>
+
+  <article class="dua" id="duaCard">
+    <span class="k" id="duaK">قبل الوصول</span>
+    <p class="t" id="duaT"></p>
+    <span class="s" id="duaS"></span>
+    <div class="tip" id="duaTip" hidden></div>
+  </article>
+
+  <div class="ctrls">
+    <button class="primary wide" id="bTrack">تشغيل التتبع</button>
+    <button id="bMinus">− شوط</button>
+    <button id="bPlus">+ شوط</button>
+    <button id="bHere">ابدأ الطواف من هنا</button>
+    <button id="bSai">انتقل إلى السعي</button>
+    <button class="wide" id="bPocket">وضع الجيب · شاشة سوداء توفّر البطارية</button>
+  </div>
+
+  <details class="panel">
+    <summary>المحاكاة (للتجربة من البيت)</summary>
+    <div class="body">
+      <p class="note">حاج افتراضي يطوف ٧ أشواط ثم يسعى ٧. أثناء الطريق تنقطع الإشارة دقيقة ونصف في الطواف وأكثر من دقيقتين في السعي، وتظهر قراءات خاطئة وقفزات انعكاس. تابع كيف تكمل الحساسات العدّ وحدها.</p>
+      <div class="row">
+        <div><label for="simSpeed">السرعة</label>
+          <select id="simSpeed"><option value="150">×١٥٠</option><option value="60" selected>×٦٠</option><option value="15">×١٥</option><option value="1">حقيقية</option></select></div>
+        <button id="bSim">تشغيل المحاكاة</button>
+      </div>
+    </div>
+  </details>
+
+  <details class="panel">
+    <summary>سجل الأشواط</summary>
+    <div class="body"><ul class="log" id="log"></ul></div>
+  </details>
+
+  <details class="panel">
+    <summary>مكتبة الأدعية والأذكار</summary>
+    <div class="body lib" id="lib"></div>
+  </details>
+
+  <details class="panel">
+    <summary>المعايرة والإعدادات</summary>
+    <div class="body">
+      <p class="note">مواقع الصفا والمروة واتجاه الحجر الأسود مضبوطة تقريبياً. لو وقفت عند أحدها اضغط زره ليحفظ موقعك الفعلي.</p>
+      <div class="row">
+        <button id="bCalBlack">أنا محاذٍ للحجر الأسود</button>
+        <button id="bCalSafa">أنا عند الصفا</button>
+        <button id="bCalMarwa">أنا عند المروة</button>
+      </div>
+      <div class="row">
+        <div><label for="startB">اتجاه خط البداية من مركز الكعبة (°)</label><input type="number" id="startB" min="0" max="359" step="1"></div>
+        <div><label for="voice">التنبيه</label>
+          <select id="voice"><option value="both">صوت واهتزاز</option><option value="vib">اهتزاز فقط</option><option value="none">بدون</option></select></div>
+      </div>
+      <button class="danger" id="bReset">عمرة جديدة (تصفير الكل)</button>
+    </div>
+  </details>
+
+  <details class="panel">
+    <summary>كيف يحسب التطبيق الأشواط</summary>
+    <div class="body math">
+      <p class="note"><b>الإحداثيات:</b> تتحول قراءة الـ GPS إلى أمتار على مستوى مماس للأرض عند الكعبة، بنصفي انحناء الإهليلج WGS84.</p>
+      <p class="note"><b>تنقية الموقع:</b> مرشّح كالمان بنموذج سرعة ثابتة لكل محور. وزن القراءة يتناسب عكسياً مع مربع دقتها، وأي قراءة تفشل في اختبار ماهالانوبيس (χ² بدرجتي حرية، ٩٩٪) تُستبعد كقفزة انعكاس.</p>
+      <p class="note"><b>الطواف:</b> التقدّم زاوية تراكمية حول الكعبة يقدّرها مرشّح كالمان ثانٍ. سرعة الدوران من الجيروسكوب بعد إسقاطها على اتجاه الجاذبية (ω·ĝ)، فيعمل العدّ والجوال في الجيب وأثناء انقطاع الـ GPS. أما الـ GPS فيصحّح الزاوية بعدم يقين قدره arctan(σ/r)، فيقلّ وزنه كلما اقتربت من الكعبة. لا يُحتسب الشوط إلا إذا تجاوز التقدير ٣٦٠° بهامش 2σ.</p>
+      <p class="note"><b>السعي:</b> إسقاط الموقع على الخط من الصفا إلى المروة. وعند غياب الإشارة يُحتسب الشوط من انعطاف ١٨٠° يرصده الجيروسكوب بعد عدد كافٍ من الخطوات. طول الخطوة بمعادلة واينبرغ L = K·(a<sub>max</sub>−a<sub>min</sub>)<sup>¼</sup>.</p>
+      <p class="note">العدّ استرشادي. إذا شككت في العدد فابنِ على الأقل، وصحّح بزرّي + و −.</p>
+    </div>
+  </details>
+</div>
+
+<div id="pocket" hidden role="dialog" aria-label="وضع الجيب">
+  <div class="pk-n" id="pkN">٠</div>
+  <div class="pk-l" id="pkL"></div>
+  <div class="pk-h" id="pkH">العدّ والتنبيهات مستمرة · اضغط مطولاً للخروج</div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const AR = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+const ORD = ['الأول','الثاني','الثالث','الرابع','الخامس','السادس','السابع'];
+const rad = d => d*Math.PI/180, deg = r => r*180/Math.PI;
+const wrap180 = a => ((a%360)+540)%360-180;
+const mod360 = a => ((a%360)+360)%360;
+const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+const gauss = () => { let u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); };
+const Phi = z => { const t=1/(1+0.3275911*Math.abs(z)/Math.SQRT2);
+  const y=1-((((1.061405429*t-1.453152027)*t+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-z*z/2);
+  return .5*(1+Math.sign(z)*y); };
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ================= Geodesy: WGS84 local tangent plane at the Kaaba ================= */
+const KAABA={lat:21.422487,lon:39.826206};
+const WGS_A=6378137, WGS_E2=6.69437999014e-3;
+const PHI0=rad(KAABA.lat), W0=1-WGS_E2*Math.sin(PHI0)**2;
+const RN=WGS_A/Math.sqrt(W0), RM=WGS_A*(1-WGS_E2)/(W0*Math.sqrt(W0));
+const MLAT=rad(RM), MLON=rad(RN*Math.cos(PHI0));
+const toXY = p => ({x:(p.lon-KAABA.lon)*MLON, y:(p.lat-KAABA.lat)*MLAT});
+const toLL = q => ({lat:KAABA.lat+q.y/MLAT, lon:KAABA.lon+q.x/MLON});
+const bearingOf = q => mod360(deg(Math.atan2(q.x,q.y)));
+
+const DEF={startB:95, safa:{lat:21.42200,lon:39.82745}, marwa:{lat:21.42545,lon:39.82705}};
+const MATAF_R=115, CORR_W=35, MAX_ACC=60;
+const CHI2_2=9.21, CHI2_1=6.63;
+
+/* ================= Kalman filter: 1 axis, constant-velocity model ================= */
+class Axis{
+  constructor(){ this.x=0; this.v=0; this.P=[[1e4,0],[0,1e2]]; }
+  init(z,r,v=0){ this.x=z; this.v=v; this.P=[[r,0],[0,4]]; }
+  predict(dt,q){                       // q = white-noise acceleration spectral density
+    const P=this.P; this.x+=this.v*dt;
+    const p00=P[0][0]+2*dt*P[0][1]+dt*dt*P[1][1]+q*dt**4/4;
+    const p01=P[0][1]+dt*P[1][1]+q*dt**3/2;
+    const p11=P[1][1]+q*dt*dt;
+    this.P=[[p00,p01],[p01,p11]];
+  }
+  updateNu(nu,r){
+    const P=this.P, S=P[0][0]+r, k0=P[0][0]/S, k1=P[0][1]/S;
+    this.x+=k0*nu; this.v+=k1*nu;
+    const p00=(1-k0)*P[0][0], p01=(1-k0)*P[0][1], p11=P[1][1]-k1*P[0][1];
+    this.P=[[p00,p01],[p01,p11]];
+  }
+}
+
+/* position filter (two axes, Mahalanobis gating) */
+const PF={ax:new Axis(),ay:new Axis(),t:0,ready:false,rej:0,
+  reset(){ this.ready=false; this.rej=0; },
+  feed(t,q,acc){
+    const r=(Math.max(acc,3)*.7)**2;
+    if(!this.ready||t-this.t>120){ this.ax.init(q.x,r); this.ay.init(q.y,r); this.t=t; this.ready=true; this.rej=0; return 'init'; }
+    const dt=Math.max(.05,t-this.t); this.t=t;
+    this.ax.predict(dt,.6); this.ay.predict(dt,.6);
+    const nx=q.x-this.ax.x, ny=q.y-this.ay.x;
+    const d2=nx*nx/(this.ax.P[0][0]+r)+ny*ny/(this.ay.P[0][0]+r);
+    if(d2>CHI2_2){ if(++this.rej<3) return 'reject'; this.ax.init(q.x,r); this.ay.init(q.y,r); this.rej=0; return 'reset'; }
+    this.rej=0; this.ax.updateNu(nx,r); this.ay.updateNu(ny,r); return 'ok';
+  },
+  pos(){ return {x:this.ax.x,y:this.ay.x}; },
+  sigma(){ return Math.sqrt((this.ax.P[0][0]+this.ay.P[0][0])/2); }
+};
+
+/* angular filter for tawaf: θ = cumulative anticlockwise progress since the Black Stone line (deg) */
+const TF={ax:new Axis(),armed:false,t:0,rej:0,
+  arm(th,P,t){ this.ax.init(th,P); this.armed=true; this.t=t; this.rej=0; },
+  gyro(d,dt){ if(!this.armed) return; this.ax.x+=d; this.ax.P[0][0]+=.25*dt+(.03*d)**2; },
+  gps(t,b,sig,dist,gyroOn){
+    const dt=Math.max(.05,t-this.t); this.t=t;
+    if(!gyroOn) this.ax.predict(dt,6);
+    const r=(deg(Math.atan2(sig,dist))+1)**2;       // angular uncertainty grows near the Kaaba
+    const nu=wrap180((S.startB-b)-this.ax.x);
+    if(nu*nu/(this.ax.P[0][0]+r)>CHI2_1){ if(++this.rej<3) return; this.ax.init(this.ax.x+nu,r,this.ax.v); this.rej=0; return; }
+    this.rej=0; this.ax.updateNu(nu,r);
+  },
+  sigma(){ return Math.sqrt(Math.max(0,this.ax.P[0][0])); }
+};
+
+/* ================= persisted state ================= */
+const KEY='umrah-companion-v2';
+const fresh = () => ({phase:'idle',auto:0,adj:0,legs:0,legAdj:0,target:'marwa',
+  startB:DEF.startB,safa:{...DEF.safa},marwa:{...DEF.marwa},lapTimes:[],legTimes:[],t0:null,s0:null,
+  th:null,thP:null,steps:0,dist:0,mode:'both'});
+let S; try{ S=JSON.parse(localStorage.getItem(KEY)); }catch(e){}
+S=Object.assign(fresh(),S||{});
+if(S.th!==null && S.phase==='tawaf') TF.arm(S.th,S.thP||25,Date.now()/1000);
+const save=()=>{ if(TF.armed){ S.th=TF.ax.x; S.thP=TF.ax.P[0][0]; } try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} };
+const laps = () => clamp(S.auto+S.adj,0,7);
+const legs = () => clamp(S.legs+S.legAdj,0,7);
+const keepSettings = () => ({startB:S.startB,safa:S.safa,marwa:S.marwa,mode:S.mode});
+
+/* ================= feedback ================= */
+/* native (Android via Capacitor): vibration and Arabic speech. Inert on the web. */
+const NATIVE=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
+const RP=nm=>{ const C=window.Capacitor; try{ if(C.registerPlugin) return C.registerPlugin(nm); }catch(e){} return (C.Plugins||{})[nm]; };
+const Haptics=NATIVE?RP('Haptics'):null, TTS=NATIVE?RP('TextToSpeech'):null;
+function announce(text,pattern=[200,80,200]){
+  if(S.mode!=='none'){
+    if(Haptics){ let d=0; pattern.forEach((ms,i)=>{ if(i%2===0) setTimeout(()=>{ try{ Haptics.vibrate({duration:ms}).catch(()=>{}); }catch(e){} },d); d+=ms; }); }
+    else if(navigator.vibrate) try{navigator.vibrate(pattern)}catch(e){}
+  }
+  if(S.mode==='both'){
+    if(TTS){ Promise.resolve().then(()=>TTS.stop()).catch(()=>{}).then(()=>TTS.speak({text,lang:'ar-SA',rate:.95,volume:1,category:'playback'})).catch(()=>{}); }
+    else if('speechSynthesis' in window){
+      try{ const u=new SpeechSynthesisUtterance(text); u.lang='ar-SA'; u.rate=.95; speechSynthesis.cancel(); speechSynthesis.speak(u); }catch(e){}
+    }
+  }
+}
+let wake=null;
+async function keepAwake(){ try{ if('wakeLock' in navigator&&!wake){ wake=await navigator.wakeLock.request('screen'); wake.addEventListener('release',()=>wake=null); } }catch(e){} }
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&(Eng.source)) keepAwake(); });
+
+/* ================= engine: fuses GPS, gyroscope and steps ================= */
+const Eng={source:null,lastFix:0,lastGps:-1e9,lastGyro:-1e9,acc:null,live:null,tS:null,H:0,hBuf:[],lastUturn:-1e9,stepsLeg:0,lastStepT:-1e9,
+  now(){ return this.source==='sim'?Sim.clock:Date.now()/1000; },
+  gyroOn(t){ return t-this.lastGyro<3; },
+  gpsFresh(t){ return t-this.lastGps<12; },
+  resetRuntime(){ Object.assign(this,{lastFix:0,lastGps:-1e9,lastGyro:-1e9,acc:null,live:null,tS:null,H:0,hBuf:[],lastUturn:-1e9,stepsLeg:0}); PF.reset(); },
+
+  gps(t,lat,lon,acc){
+    this.lastFix=t; this.acc=acc;
+    if(acc>MAX_ACC) return;
+    const res=PF.feed(t,toXY({lat,lon}),acc);
+    if(res==='reject') return;
+    this.lastGps=t; this.onPos(t);
+  },
+  gyro(t,d,dt){
+    this.lastGyro=t; this.H+=d; this.hBuf.push([t,this.H]);
+    while(this.hBuf.length&&this.hBuf[0][0]<t-15) this.hBuf.shift();
+    if(S.phase==='tawaf'){ TF.gyro(d,dt); this.checkLaps(t); }
+    if(S.phase==='sai') this.checkUturn(t);
+  },
+  step(t,L){ S.steps++; S.dist+=L; this.stepsLeg++; this.lastStepT=t; },
+
+  onPos(t){
+    const q=PF.pos(), sig=PF.sigma(), dist=Math.hypot(q.x,q.y), b=bearingOf(q), sg=segInfo(q);
+    const inCorr=sg.d<CORR_W&&sg.t>-.15&&sg.t<1.15, inMataf=dist<MATAF_R&&!inCorr;
+    this.live={q,sig,dist,b,t:sg.t,inCorr,inMataf};
+    if(S.phase==='idle'&&inMataf) startTawaf(b,sig,dist,t);
+    if(S.phase==='tawaf'&&dist>4){
+      if(!TF.armed) armFromBearing(b,sig,dist,t); else TF.gps(t,b,sig,dist,this.gyroOn(t));
+      this.checkLaps(t);
+    }
+    if((S.phase==='idle'||S.phase==='tawafDone')&&inCorr&&sg.t<.2) startSai(t);
+    if(S.phase==='sai'){
+      this.tS=this.tS===null?sg.t:this.tS*.5+sg.t*.5;
+      if(inCorr){
+        if(S.target==='marwa'&&this.tS>.93) leg(t);
+        else if(S.target==='safa'&&this.tS<.07) leg(t);
+      }
+    }
+    save();
+  },
+  checkLaps(t){
+    if(S.phase!=='tawaf'||!TF.armed) return;
+    const lo=TF.ax.x-2*TF.sigma();
+    const k=lo>=360?Math.floor(lo/360):0;
+    while(S.auto<Math.min(7,k)){ S.auto++; if(S.auto+S.adj<=7) lapDone(t); }
+  },
+  checkUturn(t){
+    if(t-this.lastUturn<20||!this.hBuf.length) return;
+    if(Math.abs(this.H-this.hBuf[0][1])<150) return;
+    this.lastUturn=t; this.hBuf=[[t,this.H]];
+    const near=this.tS===null||(S.target==='marwa'?this.tS>.7:this.tS<.3);
+    if(this.stepsLeg>=200&&(!this.gpsFresh(t)||near)) leg(t);
+  }
+};
+function segInfo(q){
+  const A=toXY(S.safa),B=toXY(S.marwa),vx=B.x-A.x,vy=B.y-A.y,L2=vx*vx+vy*vy;
+  const t=((q.x-A.x)*vx+(q.y-A.y)*vy)/L2;
+  return {t,d:Math.hypot(q.x-(A.x+t*vx),q.y-(A.y+t*vy))};
+}
+function armFromBearing(b,sig,dist,t){
+  const m=mod360(b-S.startB);
+  TF.arm(m>345?360-m:-m,(deg(Math.atan2(sig,dist))+1)**2,t);
+}
+function startTawaf(b,sig,dist,t){
+  S.phase='tawaf'; S.auto=0; S.adj=0; S.lapTimes=[]; S.t0=t;
+  armFromBearing(b,sig,dist,t);
+  announce('بدأ تتبع الطواف. اجعل الكعبة عن يسارك واتجه إلى خط الحجر الأسود',[100]);
+}
+function lapDone(t){
+  S.lapTimes.push(t); Scene.burst();
+  const n=laps();
+  if(n>=7){ S.phase='tawafDone'; S.th=null; TF.armed=false; announce('أتممت الطواف، سبعة أشواط. تقبّل الله',[300,100,300,100,300]); }
+  else announce('انتهى الشوط '+ORD[n-1]+'، ابدأ الشوط '+ORD[n]);
+  popCount();
+}
+function startSai(t){
+  S.phase='sai'; S.legs=0; S.legAdj=0; S.target='marwa'; S.legTimes=[]; S.s0=t;
+  Eng.tS=null; Eng.stepsLeg=0; Eng.hBuf=[]; TF.armed=false; S.th=null;
+  announce('بدأ السعي من الصفا، اتجه إلى المروة',[100]);
+}
+function leg(t){
+  S.legs++; S.target=S.target==='marwa'?'safa':'marwa'; Eng.stepsLeg=0;
+  S.legTimes.push(t); Scene.burst();
+  const n=legs();
+  if(n>=7){ S.phase='done'; announce('أتممت السعي، سبعة أشواط. تقبّل الله، بقي الحلق أو التقصير',[300,100,300,100,300]); }
+  else announce('انتهى الشوط '+ORD[n-1]+' من السعي، اتجه إلى '+(S.target==='marwa'?'المروة':'الصفا'));
+  popCount(); save();
+}
+
+/* ================= real sensors ================= */
+const Motion={on:false,g:{x:0,y:0,z:9.8},bias:0,v:0,lastT:0,lp:9.8,mx:-1e9,mn:1e9,above:false,lastStep:0,seen:false,
+  async start(){
+    try{ if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){
+      if(await DeviceMotionEvent.requestPermission()!=='granted') return; } }catch(e){ return; }
+    if(!this.h){ this.h=e=>this.sample(e); window.addEventListener('devicemotion',this.h); }
+    this.on=true;
+  },
+  stop(){ if(this.h){ window.removeEventListener('devicemotion',this.h); this.h=null; } this.on=false; },
+  sample(e){
+    const a=e.accelerationIncludingGravity, r=e.rotationRate;
+    if(!a||a.x==null) return;
+    const t=Date.now()/1000, dt=this.lastT?Math.min(.2,t-this.lastT):0; this.lastT=t; if(!dt) return;
+    this.seen=true;
+    const g=this.g; g.x+=.08*(a.x-g.x); g.y+=.08*(a.y-g.y); g.z+=.08*(a.z-g.z);
+    const gn=Math.hypot(g.x,g.y,g.z)||9.8, mag=Math.hypot(a.x,a.y,a.z);
+    this.v=.95*this.v+.05*(mag-gn)**2;
+    if(r&&r.alpha!=null){
+      const wUp=((r.beta||0)*g.x+(r.gamma||0)*g.y+(r.alpha||0)*g.z)/gn;     // yaw rate about gravity, deg/s
+      if(this.v<.02&&Math.abs(wUp)<4) this.bias+=.02*(wUp-this.bias);      // learn gyro bias while standing still
+      if(Eng.source==='gps') Eng.gyro(t,(wUp-this.bias)*dt,dt);
+    }
+    this.lp+=.25*(mag-this.lp); const v=this.lp;
+    this.mx=Math.max(this.mx,v); this.mn=Math.min(this.mn,v);
+    if(!this.above&&v>10.9&&t-this.lastStep>.3) this.above=true;
+    if(this.above&&v<9.8){
+      this.above=false; this.lastStep=t;
+      const L=clamp(.45*Math.pow(this.mx-this.mn,.25),.35,.95);           // Weinberg step length
+      if(Eng.source==='gps') Eng.step(t,L);
+      this.mx=-1e9; this.mn=1e9;
+    }
+  }
+};
+let watchId=null;
+function banner(msg){ const b=$('banner'); b.textContent=msg||''; b.hidden=!msg; }
+async function startTracking(){
+  stopSim(); Eng.source='gps';
+  await Motion.start();
+  if('geolocation' in navigator){
+    watchId=navigator.geolocation.watchPosition(
+      p=>{ banner(p.coords.accuracy>500?'الموقع تقريبي جداً. فعّل «الموقع الدقيق» لهذا التطبيق من إعدادات الجوال.':''); Eng.gps(Date.now()/1000,p.coords.latitude,p.coords.longitude,p.coords.accuracy); },
+      e=>{ if(e.code===1){ banner(NATIVE?'إذن الموقع مرفوض. فعّله من إعدادات الجوال › التطبيقات › رفيق العمرة › الأذونات، واختر «الموقع الدقيق».':'إذن الموقع مرفوض. اسمح به من إعدادات المتصفح. داخل معاينة Claude لا يتاح الموقع: افتح الملف من رابط https على جوالك أو جرّب المحاكاة. سيكمل التطبيق بالحساسات إن توفرت.'); if(watchId!==null){navigator.geolocation.clearWatch(watchId);watchId=null;} }
+           else banner('الإشارة ضعيفة الآن، والعدّ مستمر بالحساسات. يمكنك التصحيح يدوياً بالأزرار.'); },
+      {enableHighAccuracy:true,maximumAge:0,timeout:20000});
+  } else banner('هذا المتصفح لا يدعم تحديد الموقع.');
+  keepAwake(); render();
+}
+function stopTracking(){ if(watchId!==null){ navigator.geolocation.clearWatch(watchId); watchId=null; } Motion.stop(); if(Eng.source==='gps') Eng.source=null; render(); }
+
+/* ================= simulation ================= */
+const Sim={clock:0,ev:[],i:0,run:false,
+  build(){
+    const ev=[], A=toXY(S.safa), B=toXY(S.marwa), blackouts=[];
+    let t=0,nextGps=0,nextStep=0,n=0,last={x:0,y:0};
+    const emit=(x,y,d,dt,moving)=>{
+      last={x,y};
+      ev.push({t,k:'gyro',d:d+gauss()*.4*Math.sqrt(dt)+.05*dt,dt});
+      if(moving&&t>=nextStep){ ev.push({t,k:'step',L:.62+gauss()*.04}); nextStep=t+.55; }
+      if(t>=nextGps){ nextGps=t+1; n++;
+        if(!blackouts.some(([a,b])=>t>=a&&t<b)){
+          let acc=8+Math.random()*14, nx=x+gauss()*acc*.5, ny=y+gauss()*acc*.5;
+          if(n%173===0) acc=95; else if(n%257===0){ nx+=70; ny-=40; acc=20; }
+          const ll=toLL({x:nx,y:ny}); ev.push({t,k:'gps',lat:ll.lat,lon:ll.lon,acc});
+        } }
+      t+=dt;
+    };
+    const R0=28,v=1.0,w=deg(v/R0),b0=S.startB+35,total=7*360+35+25,T1=total/w;
+    blackouts.push([T1*.33,T1*.33+90]);
+    for(let s=0;s<T1;s+=.2){ const b=rad(b0-w*s); emit(R0*Math.sin(b),R0*Math.cos(b),w*.2,.2,true); }
+    const walk=(p,q,sp)=>{ const nn=Math.ceil(Math.hypot(q.x-p.x,q.y-p.y)/sp/.2); for(let i=1;i<=nn;i++) emit(p.x+(q.x-p.x)*i/nn,p.y+(q.y-p.y)*i/nn,0,.2,true); };
+    const stand=(p,sec)=>{ for(let s=0;s<sec;s+=.2) emit(p.x,p.y,0,.2,false); };
+    const turn=p=>{ for(let s=0;s<3;s+=.2) emit(p.x,p.y,-12,.2,false); };
+    stand(last,20); walk(last,A,1.1); stand(A,15); turn(A);
+    const legT=Math.hypot(B.x-A.x,B.y-A.y)/1.3;
+    for(let k=0;k<7;k++){
+      const [p,q]=k%2?[B,A]:[A,B];
+      if(k===3) blackouts.push([t+legT*.7,t+legT+40]);
+      walk(p,q,1.3); stand(q,15); if(k<6) turn(q);
+    }
+    return ev;
+  },
+  start(){
+    stopTracking(); Object.assign(S,fresh(),keepSettings()); TF.armed=false; Eng.resetRuntime();
+    Eng.source='sim'; this.ev=this.build(); this.i=0; this.clock=0; this.run=true;
+    banner(''); keepAwake(); save(); render();
+  },
+  tick(dtReal){
+    if(!this.run) return;
+    this.clock+=Math.min(dtReal,.1)*(+$('simSpeed').value);
+    while(this.i<this.ev.length&&this.ev[this.i].t<=this.clock){
+      const e=this.ev[this.i++];
+      if(e.k==='gps') Eng.gps(e.t,e.lat,e.lon,e.acc);
+      else if(e.k==='gyro') Eng.gyro(e.t,e.d,e.dt);
+      else Eng.step(e.t,e.L);
+    }
+    if(this.i>=this.ev.length) stopSim();
+  }
+};
+function stopSim(){ if(Sim.run){ Sim.run=false; } if(Eng.source==='sim') Eng.source=null; render(); }
+
+/* ================= scene: canvas, 60 fps ================= */
+const cv=$('cv'), ctx=cv.getContext('2d');
+const C={};
+function readTokens(){ const cs=getComputedStyle(document.documentElement);
+  ['--gold','--gold-2','--ink','--muted','--line','--kiswa','--floor','--crowd','--ok','--surface','--bg'].forEach(k=>C[k.slice(2)]=cs.getPropertyValue(k).trim()); }
+const Scene={W:0,H:0,dpr:1,crowd:[],sai:[],parts:[],trail:[],lastTrail:0,pulse:0,
+  init(){
+    for(let i=0;i<260;i++) this.crowd.push({r:.32+.72*Math.random()**.8,a:Math.random()*360,w:4+Math.random()*7,z:Math.random()});
+    for(let i=0;i<150;i++){ const u=Math.random()*2-1; this.sai.push({u,t:Math.random(),s:(u>0?1:-1)*(.006+Math.random()*.006)}); }
+    this.resize(); new ResizeObserver(()=>this.resize()).observe(cv);
+  },
+  resize(){ const r=cv.getBoundingClientRect(); this.dpr=Math.min(2,devicePixelRatio||1);
+    this.W=r.width; this.H=r.height; cv.width=Math.round(r.width*this.dpr); cv.height=Math.round(r.height*this.dpr); },
+  burst(){ if(reduced) return; this.pulse=1;
+    const p=this.pilgrimXY||[this.W/2,this.H/2];
+    for(let i=0;i<70;i++){ const a=Math.random()*Math.PI*2,s=40+Math.random()*160; this.parts.push({x:p[0],y:p[1],vx:Math.cos(a)*s,vy:Math.sin(a)*s-60,life:1}); } },
+  frame(dt){
+    const c=ctx, W=this.W, H=this.H; if(!W) return;
+    c.setTransform(this.dpr,0,0,this.dpr,0,0); c.clearRect(0,0,W,H);
+    if(!reduced){ this.crowd.forEach(p=>p.a-=p.w*dt); this.sai.forEach(p=>{p.t=mod360((p.t+p.s*dt*8)*360)/360;}); }
+    if(S.phase==='sai'||S.phase==='done') this.drawSai(c,W,H); else this.drawMataf(c,W,H,dt);
+    // particles
+    this.parts=this.parts.filter(p=>(p.life-=dt*.8)>0);
+    c.fillStyle=C['gold-2'];
+    this.parts.forEach(p=>{ p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=160*dt; c.globalAlpha=p.life; c.beginPath(); c.arc(p.x,p.y,2.4*p.life+.6,0,7); c.fill(); });
+    c.globalAlpha=1; this.pulse=Math.max(0,this.pulse-dt*.8);
+  },
+  drawMataf(c,W,H,dt){
+    const cx=W/2, cy=H*.54, rr=Math.min(W*.36,H*.62), ky=.56;
+    const P=(b,f)=>[cx+Math.sin(rad(b))*rr*f, cy-Math.cos(rad(b))*rr*f*ky];
+    // floor
+    const g=c.createRadialGradient(cx,cy,10,cx,cy,rr*1.2); g.addColorStop(0,C.surface); g.addColorStop(1,C.floor);
+    c.fillStyle=g; c.beginPath(); c.ellipse(cx,cy,rr*1.18,rr*1.18*ky,0,0,7); c.fill();
+    // track
+    c.strokeStyle=C.line; c.lineWidth=14; c.beginPath(); c.ellipse(cx,cy,rr,rr*ky,0,0,7); c.stroke();
+    const armed=S.phase==='tawaf'&&TF.armed, th=armed?TF.ax.x:null, sg=armed?TF.sigma():0;
+    // completed ring pulse / done ring
+    if(S.phase==='tawafDone'){ c.strokeStyle=C.ok; c.lineWidth=14; c.beginPath(); c.ellipse(cx,cy,rr,rr*ky,0,0,7); c.stroke(); }
+    // progress arc of current lap
+    if(armed&&th>0&&laps()<7){
+      const f=(th%360)/360;
+      c.save(); c.strokeStyle=C.gold; c.lineWidth=14; c.lineCap='round'; if(!reduced){ c.shadowColor=C['gold-2']; c.shadowBlur=18; }
+      c.beginPath(); for(let a=0;a<=f*360;a+=3){ const p=P(S.startB-a,1); a?c.lineTo(...p):c.moveTo(...p); } c.stroke(); c.restore();
+    }
+    // uncertainty wedge ±2σ
+    let pb=null;
+    if(armed) pb=S.startB-th; else if(Eng.live&&Eng.live.dist<MATAF_R*1.4) pb=Eng.live.b;
+    if(armed){
+      const s2=clamp(2*sg,1,120); c.fillStyle=C.gold; c.globalAlpha=.16; c.beginPath();
+      for(let a=-s2;a<=s2;a+=2) c.lineTo(...P(pb+a,1.16));
+      for(let a=s2;a>=-s2;a-=2) c.lineTo(...P(pb+a,.84));
+      c.fill(); c.globalAlpha=1;
+    }
+    // start line (Black Stone)
+    const s1=P(S.startB,.82), s2p=P(S.startB,1.2);
+    c.strokeStyle=C.ok; c.lineWidth=4; c.beginPath(); c.moveTo(...s1); c.lineTo(...s2p); c.stroke();
+    c.fillStyle=C.ok; c.font='600 12px '+getComputedStyle(document.body).fontFamily; c.textAlign='center';
+    const lp=P(S.startB,1.2), tw=c.measureText('الحجر الأسود').width; c.textAlign='center'; c.fillText('الحجر الأسود',clamp(lp[0],tw/2+6,W-tw/2-6),lp[1]-16);
+    // crowd behind, Kaaba, crowd in front
+    const dot=(p,front)=>{ const y=Math.cos(rad(p.a)); if((y<=0)!==front) return;
+      const q=P(p.a,p.r); c.globalAlpha=.35+.35*p.z; c.beginPath(); c.arc(q[0],q[1],1.4+1.4*p.z*(front?1.2:.8),0,7); c.fill(); };
+    c.fillStyle=C.crowd; this.crowd.forEach(p=>dot(p,false)); c.globalAlpha=1;
+    this.drawPilgrim(c,P,pb,false);
+    this.drawKaaba(c,cx,cy,rr,ky);
+    c.fillStyle=C.crowd; this.crowd.forEach(p=>dot(p,true)); c.globalAlpha=1;
+    this.drawPilgrim(c,P,pb,true);
+    // trail
+    if(pb!==null){ const now=performance.now(); if(now-this.lastTrail>120){ this.trail.push(pb); if(this.trail.length>28) this.trail.shift(); this.lastTrail=now; } }
+  },
+  drawPilgrim(c,P,pb,front){
+    if(pb===null){ this.pilgrimXY=null; return; }
+    if((Math.cos(rad(pb))<=0)!==front) return;
+    c.fillStyle=C.gold;
+    this.trail.forEach((b,i)=>{ const q=P(b,1); c.globalAlpha=i/this.trail.length*.5; c.beginPath(); c.arc(q[0],q[1],2+3*i/this.trail.length,0,7); c.fill(); });
+    c.globalAlpha=1;
+    const q=P(pb,1); this.pilgrimXY=q;
+    const pr=9+(reduced?0:Math.sin(performance.now()/300)*1.5)+this.pulse*10;
+    c.save(); if(!reduced){ c.shadowColor=C['gold-2']; c.shadowBlur=22; }
+    c.fillStyle=C['gold-2']; c.beginPath(); c.arc(q[0],q[1],pr,0,7); c.fill(); c.restore();
+    c.strokeStyle=C.surface; c.lineWidth=3; c.beginPath(); c.arc(q[0],q[1],pr,0,7); c.stroke();
+  },
+  drawKaaba(c,cx,cy,rr,ky){
+    const rk=rr*.17, h=rr*.3, corners=[0,1,2,3].map(k=>{ const b=rad(S.startB+k*90); return {x:Math.sin(b)*rk,y:Math.cos(b)*rk}; });
+    const scr=p=>[cx+p.x, cy-p.y*ky];
+    // shadow
+    c.fillStyle='rgba(0,0,0,.18)'; c.beginPath(); c.ellipse(cx+6,cy+4,rk*1.25,rk*1.25*ky,0,0,7); c.fill();
+    const faces=[0,1,2,3].map(k=>{ const a=corners[k],b=corners[(k+1)%4]; return {a,b,my:(a.y+b.y)/2}; })
+      .filter(f=>f.my<0).sort((p,q)=>q.my-p.my);
+    faces.forEach(f=>{
+      const A=scr(f.a),B=scr(f.b);
+      const shade=(f.a.x+f.b.x)<0?.0:.12;
+      c.fillStyle=C.kiswa; c.beginPath(); c.moveTo(A[0],A[1]); c.lineTo(B[0],B[1]); c.lineTo(B[0],B[1]-h); c.lineTo(A[0],A[1]-h); c.closePath(); c.fill();
+      c.fillStyle='rgba(255,255,255,'+shade+')'; c.fill();
+      // hizam: the gold band of the kiswa
+      const bt=h*.72, bw=h*.07;
+      c.fillStyle=C.gold; c.beginPath(); c.moveTo(A[0],A[1]-bt); c.lineTo(B[0],B[1]-bt); c.lineTo(B[0],B[1]-bt-bw); c.lineTo(A[0],A[1]-bt-bw); c.closePath(); c.fill();
+    });
+    c.fillStyle=C.kiswa; c.beginPath(); corners.forEach((p,i)=>{ const s=scr(p); i?c.lineTo(s[0],s[1]-h):c.moveTo(s[0],s[1]-h); }); c.closePath(); c.fill();
+    c.strokeStyle=C.gold; c.globalAlpha=.6; c.lineWidth=1; c.stroke(); c.globalAlpha=1;
+  },
+  drawSai(c,W,H){
+    const yb=H-46, yt=34, wb=W*.62, wt=W*.2, cx=W/2;
+    const at=(t,u)=>{ const k=clamp(t,0,1); const y=yb+(yt-yb)*k, w=wb+(wt-wb)*k; return [cx+u*w/2,y,w/wb]; };
+    // corridor
+    const g=c.createLinearGradient(0,yb,0,yt); g.addColorStop(0,C.floor); g.addColorStop(1,C.surface);
+    c.fillStyle=g; c.beginPath(); c.moveTo(cx-wb/2,yb); c.lineTo(cx+wb/2,yb); c.lineTo(cx+wt/2,yt); c.lineTo(cx-wt/2,yt); c.closePath(); c.fill();
+    c.strokeStyle=C.line; c.lineWidth=1;
+    [-1,-.33,.33,1].forEach(u=>{ const a=at(0,u),b=at(1,u); c.beginPath(); c.moveTo(a[0],a[1]); c.lineTo(b[0],b[1]); c.stroke(); });
+    // hills
+    const hill=(t,label,up)=>{ const p=at(t,0); c.fillStyle=C.crowd; c.globalAlpha=.5; c.beginPath(); c.ellipse(p[0],p[1],p[2]*wb*.22,p[2]*14,0,Math.PI,0); c.fill(); c.globalAlpha=1;
+      c.fillStyle=C.ink; c.font='600 '+Math.round(12+6*p[2])+'px '+getComputedStyle(document.body).fontFamily; c.textAlign='center'; c.fillText(label,p[0],p[1]+(up?-18:30)); };
+    hill(0,'الصفا',false); hill(1,'المروة',true);
+    // crowd
+    c.fillStyle=C.crowd;
+    this.sai.forEach(p=>{ const q=at(p.t,p.u*.9); c.globalAlpha=.55; c.beginPath(); c.arc(q[0],q[1],1.2+2*q[2],0,7); c.fill(); });
+    c.globalAlpha=1;
+    // progress of current leg
+    const t=Eng.tS===null?(S.target==='marwa'?0:1):clamp(Eng.tS,0,1);
+    if(S.phase==='sai'){
+      const from=S.target==='marwa'?0:1;
+      c.save(); c.strokeStyle=C.gold; c.lineWidth=8; c.lineCap='round'; if(!reduced){ c.shadowColor=C['gold-2']; c.shadowBlur=16; }
+      c.beginPath(); for(let k=0;k<=20;k++){ const q=at(from+(t-from)*k/20,.12); k?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1]); } c.stroke(); c.restore();
+      const q=at(t,.12); this.pilgrimXY=[q[0],q[1]];
+      const pr=(6+6*q[2])+(reduced?0:Math.sin(performance.now()/300)*1.2)+this.pulse*10;
+      c.save(); if(!reduced){ c.shadowColor=C['gold-2']; c.shadowBlur=20; } c.fillStyle=C['gold-2']; c.beginPath(); c.arc(q[0],q[1],pr,0,7); c.fill(); c.restore();
+      c.strokeStyle=C.surface; c.lineWidth=3; c.beginPath(); c.arc(q[0],q[1],pr,0,7); c.stroke();
+    }
+    // leg pips
+    for(let i=0;i<7;i++){ const y=yb-12-i*((yb-yt-24)/6); c.fillStyle=i<legs()?C.ok:C.line; c.beginPath(); c.arc(16,y,7,0,7); c.fill();
+      c.fillStyle=i<legs()?C.surface:C.muted; c.font='600 9px sans-serif'; c.textAlign='center'; c.fillText(AR(i+1),16,y+3); }
+    if(S.phase==='done'){ c.fillStyle=C.ok; c.globalAlpha=.08+(reduced?0:.05*Math.sin(performance.now()/500)); c.fillRect(0,0,W,H); c.globalAlpha=1; }
+  }
+};
+
+/* ================= duas (authentic, with sources) ================= */
+const D={
+  talbiya:{k:'التلبية',t:'لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ، لَبَّيْكَ لَا شَرِيكَ لَكَ لَبَّيْكَ، إِنَّ الْحَمْدَ وَالنِّعْمَةَ لَكَ وَالْمُلْكَ، لَا شَرِيكَ لَكَ',s:'متفق عليه'},
+  masjid:{k:'عند دخول المسجد',t:'بِسْمِ اللَّهِ، وَالصَّلَاةُ وَالسَّلَامُ عَلَى رَسُولِ اللَّهِ، اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ',s:'رواه مسلم وغيره'},
+  hajar:{k:'عند محاذاة الحجر الأسود',t:'بِسْمِ اللَّهِ، وَاللَّهُ أَكْبَرُ',s:'التكبير في البخاري، والبسملة ثابتة عن ابن عمر'},
+  yamani:{k:'بين الركن اليماني والحجر الأسود',t:'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',s:'رواه أبو داود'},
+  dhikr1:{k:'أثناء الشوط',t:'سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ',s:'رواه مسلم · ادعُ بما تحب، ولم يثبت دعاء مخصوص لكل شوط'},
+  dhikr2:{k:'أثناء الشوط',t:'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',s:'متفق عليه · ادعُ بما تحب واقرأ القرآن'},
+  dhikr3:{k:'أثناء الشوط',t:'إِنَّمَا جُعِلَ الطَّوَافُ بِالْبَيْتِ وَبَيْنَ الصَّفَا وَالْمَرْوَةِ وَرَمْيُ الْجِمَارِ لِإِقَامَةِ ذِكْرِ اللَّهِ',s:'حديث رواه أبو داود والترمذي'},
+  maqam:{k:'بعد الطواف',t:'وَاتَّخِذُوا مِن مَّقَامِ إِبْرَاهِيمَ مُصَلًّى',s:'البقرة ١٢٥ · ثم ركعتان بالكافرون والإخلاص (رواه مسلم)'},
+  zamzam:{k:'ماء زمزم',t:'مَاءُ زَمْزَمَ لِمَا شُرِبَ لَهُ',s:'حديث رواه أحمد وابن ماجه · اشرب وادعُ بما تحب'},
+  safa1:{k:'عند الصفا أول السعي',t:'إِنَّ الصَّفَا وَالْمَرْوَةَ مِن شَعَائِرِ اللَّهِ · أَبْدَأُ بِمَا بَدَأَ اللَّهُ بِهِ',s:'رواه مسلم من حديث جابر'},
+  tahlil:{k:'على الصفا والمروة، مستقبلاً القبلة',t:'اللَّهُ أَكْبَرُ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ، أَنْجَزَ وَعْدَهُ، وَنَصَرَ عَبْدَهُ، وَهَزَمَ الْأَحْزَابَ وَحْدَهُ',s:'رواه مسلم · يقولها ثلاثاً ويدعو بينها'},
+  green:{k:'أثناء السعي',t:'رَبِّ اغْفِرْ وَارْحَمْ، إِنَّكَ أَنْتَ الْأَعَزُّ الْأَكْرَمُ',s:'ثابت عن ابن مسعود وابن عمر رضي الله عنهم'},
+  halq:{k:'التحلّل',t:'اللَّهُمَّ ارْحَمِ الْمُحَلِّقِينَ',s:'متفق عليه · دعاء النبي ﷺ للمحلّقين ثلاثاً وللمقصّرين مرة'}
+};
+const LIB=['talbiya','masjid','hajar','yamani','dhikr1','dhikr2','dhikr3','maqam','zamzam','safa1','tahlil','green','halq'];
+(function buildLib(){ const box=$('lib');
+  LIB.forEach(id=>{ const d=D[id]; const h=document.createElement('h3'),p=document.createElement('p'),s=document.createElement('small');
+    h.textContent=d.k; p.textContent=d.t; s.textContent=d.s; box.append(h,p,s); });
+})();
+function pickDua(){
+  const ph=S.phase, L=Eng.live; let id='talbiya', tip='';
+  if(ph==='idle'){ id=Eng.source?'masjid':'talbiya'; tip='يقطع المعتمر التلبية عند بدء الطواف.'; }
+  else if(ph==='tawaf'){
+    const th=TF.armed?TF.ax.x:-1;
+    if(th<0){ id='hajar'; tip='الاضطباع للرجال: كشف الكتف الأيمن طوال طواف العمرة.'; }
+    else { const f=(th%360)/360, n=laps();
+      if(f<.04||f>.97) id='hajar'; else if(f>.75) id='yamani'; else id=['dhikr1','dhikr2','dhikr3'][n%3];
+      if(n<3) tip='الرَّمَل للرجال في الأشواط الثلاثة الأولى: إسراع المشي مع مقاربة الخطى.'; }
+  }
+  else if(ph==='tawafDone'){ id=(Date.now()/8000|0)%2?'zamzam':'maqam'; tip='غطِّ كتفك الأيمن بعد الطواف، ثم صلِّ ركعتين خلف المقام إن تيسّر.'; }
+  else if(ph==='sai'){
+    const t=Eng.tS;
+    if(legs()===0&&(t===null||t<.12)) id='safa1';
+    else if(t!==null&&((S.target==='marwa'&&t>.9)||(S.target==='safa'&&t<.1))) id='tahlil';
+    else id='green';
+    tip='بين العلَمين الأخضرين يسرع الرجال، ويمشي الباقي على المعتاد.';
+  }
+  else if(ph==='done'){ id='halq'; tip='الحلق أفضل للرجال، والتقصير جائز. والمرأة تقصّر قدر أنملة.'; }
+  return {d:D[id],tip};
+}
+
+/* ================= UI ================= */
+let lastNum=null;
+function popCount(){ const n=$('num'); n.classList.remove('pop'); void n.offsetWidth; n.classList.add('pop'); }
+const fmtDur = s => { s=Math.max(0,Math.round(s)); return AR(Math.floor(s/60))+':'+AR(String(s%60).padStart(2,'0')); };
+function render(){
+  readTokens();
+  const t=Eng.now(), running=!!Eng.source;
+  // chips
+  const gc=$('gps'), age=t-Eng.lastFix; gc.className='chip';
+  if(!running) $('gpsTxt').textContent='GPS متوقف';
+  else if(!Eng.lastFix||age>15){ gc.classList.add('bad'); $('gpsTxt').textContent='لا توجد إشارة'; }
+  else if(Eng.acc>MAX_ACC){ gc.classList.add('warn'); $('gpsTxt').textContent='ضعيفة ±'+AR(Math.round(Eng.acc))+'م'; }
+  else { gc.classList.add(Eng.acc>25?'warn':'ok'); $('gpsTxt').textContent=(Eng.source==='sim'?'محاكاة ':'')+'±'+AR(Math.round(Eng.acc))+'م'; }
+  const ic=$('imu'); ic.className='chip';
+  if(!running) $('imuTxt').textContent='الحساسات متوقفة';
+  else if(Eng.gyroOn(t)){ ic.classList.add('ok'); $('imuTxt').textContent=Eng.gpsFresh(t)?'دمج GPS + حساسات':'الحساسات وحدها'; }
+  else { ic.classList.add('warn'); $('imuTxt').textContent='الحساسات غير متاحة'; }
+
+  // stepper
+  const ph=S.phase, idx={idle:0,tawaf:1,tawafDone:2,sai:3,done:4}[ph];
+  for(let i=0;i<5;i++) $('st'+i).className=i<idx?'done':i===idx?'on':'';
+
+  let phase='',hint='',num=0,of='من ٧',conf=null,lapT='—',eta='—',meter=0;
+  const L=Eng.live;
+  if(ph==='idle'){ phase='في انتظار الوصول للمطاف'; hint=running?'ادخل المطاف وسيبدأ العدّ وحده.':'اضغط «تشغيل التتبع» وأنت داخل الحرم، أو جرّب المحاكاة بالأسفل.'; }
+  else if(ph==='tawaf'){
+    const th=TF.armed?TF.ax.x:null, sg=TF.sigma(), n=laps();
+    if(th===null||th<0){ phase='الطواف'; of='لم يبدأ الشوط الأول';
+      hint='اجعل الكعبة عن يسارك واتجه إلى خط الحجر الأسود، فالشوط الأول يبدأ عند عبوره.'+(th!==null?' باقٍ نحو '+AR(Math.round(-th))+'°':''); }
+    else{ const f=n>=7?1:clamp((th-360*n)/360,0,1);
+      num=Math.min(7,n+1); phase='الطواف · الشوط '+ORD[Math.min(6,n)]; meter=f;
+      hint='أكملت '+AR(n)+' من ٧ أشواط.';
+      conf=Phi((th-360*S.auto)/Math.max(sg,.5));
+      if(S.auto===0) conf=Phi(th/Math.max(sg,.5));
+    }
+    const last=S.lapTimes.length?S.lapTimes[S.lapTimes.length-1]:S.t0;
+    if(last!=null) lapT=fmtDur(t-last);
+    if(S.lapTimes.length){ const avg=(S.lapTimes[S.lapTimes.length-1]-S.t0)/S.lapTimes.length; eta=fmtDur(avg*(7-n)-(t-last)); }
+    if(L&&!L.inMataf&&L.dist>MATAF_R&&Eng.gpsFresh(t)) hint='يبدو أنك خارج المطاف ('+AR(Math.round(L.dist))+'م من الكعبة).';
+  }
+  else if(ph==='tawafDone'){ phase='تمّ الطواف'; num=7; meter=1; conf=1; hint='صلِّ ركعتين واشرب من زمزم، ثم توجّه إلى الصفا فيبدأ السعي وحده.'; }
+  else if(ph==='sai'){
+    const n=legs(); num=Math.min(7,n+1); phase='السعي · الشوط '+ORD[Math.min(6,n)];
+    hint='أكملت '+AR(n)+' من ٧ · اتجه الآن إلى '+(S.target==='marwa'?'المروة':'الصفا')+'.';
+    if(Eng.tS!==null) meter=clamp(S.target==='marwa'?Eng.tS:1-Eng.tS,0,1);
+    conf=Eng.gpsFresh(t)?clamp(1-PF.sigma()/40,.5,.99):(Eng.gyroOn(t)?.85:null);
+    const last=S.legTimes.length?S.legTimes[S.legTimes.length-1]:S.s0;
+    if(last!=null) lapT=fmtDur(t-last);
+    if(S.legTimes.length){ const avg=(S.legTimes[S.legTimes.length-1]-S.s0)/S.legTimes.length; eta=fmtDur(avg*(7-n)-(t-last)); }
+    if(L&&!L.inCorr&&Eng.gpsFresh(t)) hint='يبدو أنك خارج المسعى، العدّ متوقف حتى تعود.';
+  }
+  else if(ph==='done'){ phase='تمّت العمرة بإذن الله'; num=7; of='من ٧ سعي'; meter=1; conf=1; hint='بقي الحلق أو التقصير. تقبّل الله منك.'; }
+  $('phase').textContent=phase; $('hint').textContent=hint;
+  if(num!==lastNum){ $('num').textContent=AR(num); lastNum=num; }
+  $('of').textContent=of;
+  $('kConf').textContent=conf===null?'—':AR(Math.round(clamp(conf,0,1)*100))+'٪';
+  $('kLap').textContent=lapT; $('kEta').textContent=eta;
+  $('kDist').textContent=S.dist?AR((S.dist/1000).toFixed(2))+' كم':'—';
+  $('meter').style.width=(meter*100).toFixed(1)+'%';
+  if(!$('pocket').hidden){ $('pkN').textContent=AR(num); $('pkL').textContent=phase; }
+
+  const {d,tip}=pickDua();
+  $('duaK').textContent=d.k; $('duaT').textContent=d.t; $('duaS').textContent=d.s;
+  $('duaTip').textContent=tip; $('duaTip').hidden=!tip;
+
+  $('bTrack').textContent=Eng.source==='gps'?'إيقاف التتبع':'تشغيل التتبع';
+  $('bSim').textContent=Sim.run?'إيقاف المحاكاة':'تشغيل المحاكاة';
+  $('bSai').disabled=ph==='sai'||ph==='done';
+  if(document.activeElement!==$('startB')) $('startB').value=Math.round(S.startB);
+  $('voice').value=S.mode;
+
+  const items=[];
+  S.lapTimes.forEach((x,i)=>items.push(['طواف · الشوط '+ORD[i],fmtDur(x-(i?S.lapTimes[i-1]:S.t0))]));
+  S.legTimes.forEach((x,i)=>items.push(['سعي · الشوط '+ORD[i],fmtDur(x-(i?S.legTimes[i-1]:S.s0))]));
+  const log=$('log'); log.textContent='';
+  if(!items.length) items.push(['لم يُسجَّل شوط بعد','']);
+  items.forEach(([a,b])=>{ const li=document.createElement('li'),x=document.createElement('span'),y=document.createElement('span'); x.textContent=a; y.textContent=b; li.append(x,y); log.append(li); });
+}
+
+/* main loop */
+let prev=performance.now(), uiAcc=0;
+function loop(now){
+  const dt=Math.min(.1,(now-prev)/1000); prev=now;
+  Sim.tick(dt); Scene.frame(dt);
+  uiAcc+=dt; if(uiAcc>.25){ uiAcc=0; render(); }
+  requestAnimationFrame(loop);
+}
+
+/* controls */
+$('bTrack').onclick=()=>{ Eng.source==='gps'?stopTracking():startTracking(); };
+$('bSim').onclick=()=>{ Sim.run?stopSim():Sim.start(); };
+$('bPlus').onclick=()=>{ const t=Eng.now();
+  if(S.phase==='sai'){ if(legs()<7){ S.legAdj++; S.legs--; leg(t); } }
+  else if(S.phase==='idle'||S.phase==='tawaf'){ if(S.phase==='idle'){ S.phase='tawaf'; S.t0=t; } if(laps()<7){ S.adj++; lapDone(t); } }
+  save(); render(); };
+$('bMinus').onclick=()=>{
+  if(S.phase==='sai'||(S.phase==='done'&&legs()>0)){ if(legs()>0){ S.legAdj--; S.legTimes.pop(); S.target=S.target==='marwa'?'safa':'marwa'; S.phase='sai'; } }
+  else if(laps()>0){ S.adj--; S.lapTimes.pop(); if(S.phase==='tawafDone'){ S.phase='tawaf'; } }
+  popCount(); save(); render(); };
+$('bHere').onclick=()=>{ const t=Eng.now();
+  S.phase='tawaf'; S.auto=0; S.adj=0; S.lapTimes=[]; S.t0=t;
+  if(Eng.live) S.startB=Math.round(Eng.live.b);
+  TF.arm(0,4,t); announce('بدأ الشوط الأول',[100]); save(); render(); };
+/* pocket mode: black screen, long-press to leave */
+(function(){ const pk=$('pocket'), h=$('pkH'); let tm=null;
+  $('bPocket').onclick=()=>{ pk.hidden=false; render(); keepAwake(); };
+  const cancel=()=>{ clearTimeout(tm); tm=null; h.classList.remove('hold'); };
+  pk.addEventListener('pointerdown',e=>{ e.preventDefault(); h.classList.add('hold'); tm=setTimeout(()=>{ pk.hidden=true; cancel(); },1200); });
+  ['pointerup','pointercancel','pointerleave'].forEach(ev=>pk.addEventListener(ev,cancel));
+  pk.addEventListener('contextmenu',e=>e.preventDefault());
+})();
+$('bSai').onclick=()=>{ startSai(Eng.now()); save(); render(); };
+const needFix=()=>{ if(!PF.ready){ banner('لا يوجد موقع حالي بعد. شغّل التتبع وانتظر الإشارة ثم أعد المحاولة.'); return false; } return true; };
+$('bCalBlack').onclick=()=>{ if(!needFix()) return; S.startB=Math.round(bearingOf(PF.pos())); banner('حُفظ خط البداية على '+AR(S.startB)+'°'); save(); render(); };
+$('bCalSafa').onclick=()=>{ if(!needFix()) return; S.safa=toLL(PF.pos()); banner('حُفظ موقع الصفا.'); save(); render(); };
+$('bCalMarwa').onclick=()=>{ if(!needFix()) return; S.marwa=toLL(PF.pos()); banner('حُفظ موقع المروة.'); save(); render(); };
+$('startB').onchange=e=>{ const v=+e.target.value; if(v>=0&&v<360){ S.startB=v; save(); render(); } };
+$('voice').onchange=e=>{ S.mode=e.target.value; save(); };
+let armReset=0;
+$('bReset').onclick=()=>{
+  const b=$('bReset');
+  if(Date.now()-armReset>4000){ armReset=Date.now(); b.textContent='اضغط مرة ثانية للتأكيد'; setTimeout(()=>b.textContent='عمرة جديدة (تصفير الكل)',4000); return; }
+  stopSim(); Object.assign(S,fresh(),keepSettings()); TF.armed=false; Eng.resetRuntime();
+  b.textContent='عمرة جديدة (تصفير الكل)'; banner(''); save(); render(); };
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',readTokens);
+
+Scene.init(); render(); requestAnimationFrame(loop);
+window.__umrah={S,Eng,TF,Sim};
+})();
+</script>

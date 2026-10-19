@@ -1,0 +1,24 @@
+{
+  "name": "umrah-companion",
+  "version": "1.0.0",
+  "private": true,
+  "description": "رفيق العمرة — counts tawaf and sa'i rounds automatically (Android, Capacitor)",
+  "scripts": {
+    "build:web": "node scripts/build-web.js",
+    "android:init": "npx cap add android && node scripts/patch-android.js",
+    "android:sync": "npm run build:web && npx cap sync android",
+    "android:apk": "npm run android:sync && cd android && ./gradlew assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor-community/text-to-speech": "^6.0.0",
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/haptics": "^7.0.0",
+    "@fontsource/amiri": "^5.0.0",
+    "@fontsource/ibm-plex-sans-arabic": "^5.0.0",
+    "@fontsource/reem-kufi": "^5.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0"
+  }
+}
