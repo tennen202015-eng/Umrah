@@ -33,7 +33,9 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .app{position:relative;z-index:1;max-width:540px;margin:0 auto;padding-block:14px 32px;display:flex;flex-direction:column;gap:14px}
 header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 h1{font-family:var(--display);font-weight:700;font-size:1.6rem;margin:0}
+.hdr{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
+button.lang{min-height:34px;padding:4px 14px;border-radius:999px;font-size:.82rem;font-weight:600;color:var(--gold)}
 .chip{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;padding:3px 10px;border-radius:999px;
   border:1px solid var(--line);background:var(--surface);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
 .chip i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
@@ -41,6 +43,7 @@ h1{font-family:var(--display);font-weight:700;font-size:1.6rem;margin:0}
 
 .steps{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;list-style:none;margin:0;padding:0}
 .steps li{border-top:3px solid var(--line);padding-top:5px;font-size:.72rem;color:var(--muted);line-height:1.35;min-width:0}
+.steps li span{display:block}
 .steps li b{display:block;font-family:var(--display);font-weight:500;font-size:.9rem;color:inherit}
 .steps li.on{border-color:var(--gold);color:var(--ink)}
 .steps li.done{border-color:var(--ok);color:var(--ok)}
@@ -65,6 +68,7 @@ h1{font-family:var(--display);font-weight:700;font-size:1.6rem;margin:0}
 .dua .k{font-size:.78rem;color:var(--gold);letter-spacing:.02em;font-weight:600}
 .dua .t{font-family:var(--naskh);font-size:1.4rem;line-height:2;text-wrap:balance;margin:0}
 .dua .s{font-size:.78rem;color:var(--muted)}
+.dua .tr{margin:0;font-size:.95rem;font-style:italic;line-height:1.6}
 .dua .tip{font-size:.86rem;border-top:1px solid color-mix(in srgb,var(--gold) 25%,transparent);padding-top:8px}
 
 .ctrls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -91,6 +95,7 @@ input[type=number],select{border:1px solid var(--line);background:var(--bg);colo
 .lib h3{font-family:var(--display);font-weight:500;font-size:1rem;margin:6px 0 0;color:var(--gold)}
 .lib p{margin:0;font-family:var(--naskh);font-size:1.15rem;line-height:1.9}
 .lib small{color:var(--muted);display:block;margin-bottom:6px}
+.lib p.tr{font-family:var(--body);font-size:.9rem;font-style:italic;line-height:1.6}
 .math{font-size:.86rem}
 .math b{color:var(--gold)}
 .banner{border:1px solid var(--warn);color:var(--warn);background:var(--gold-soft);border-radius:12px;padding:10px 12px;font-size:.88rem}
@@ -105,126 +110,116 @@ input[type=number],select{border:1px solid var(--line);background:var(--bg);colo
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
-<div class="app" dir="rtl" lang="ar">
+<div class="app">
   <header>
-    <h1>رفيق العمرة</h1>
-    <div class="chips">
-      <span class="chip" id="gps"><i></i><span id="gpsTxt">GPS متوقف</span></span>
-      <span class="chip" id="imu"><i></i><span id="imuTxt">الحساسات متوقفة</span></span>
+    <h1 data-i="title">رفيق العمرة</h1>
+    <div class="hdr">
+      <div class="chips">
+        <span class="chip" id="gps"><i></i><span id="gpsTxt"></span></span>
+        <span class="chip" id="imu"><i></i><span id="imuTxt"></span></span>
+      </div>
+      <button class="lang" id="bLang" type="button"></button>
     </div>
   </header>
 
   <ol class="steps">
-    <li id="st0"><b>الإحرام</b>والتلبية</li>
-    <li id="st1"><b>الطواف</b>٧ أشواط</li>
-    <li id="st2"><b>الركعتان</b>وزمزم</li>
-    <li id="st3"><b>السعي</b>٧ أشواط</li>
-    <li id="st4"><b>التحلّل</b>حلق أو تقصير</li>
+    <li id="st0"><b data-i="st0a"></b><span data-i="st0b"></span></li>
+    <li id="st1"><b data-i="st1a"></b><span data-i="st1b"></span></li>
+    <li id="st2"><b data-i="st2a"></b><span data-i="st2b"></span></li>
+    <li id="st3"><b data-i="st3a"></b><span data-i="st3b"></span></li>
+    <li id="st4"><b data-i="st4a"></b><span data-i="st4b"></span></li>
   </ol>
 
   <div class="banner" id="banner" hidden></div>
 
   <section class="stage" aria-live="polite">
-    <div class="phase" id="phase">في انتظار الوصول للمطاف</div>
-    <canvas class="scene" id="cv" aria-label="مشهد حي لموقعك حول الكعبة أو في المسعى"></canvas>
+    <div class="phase" id="phase"></div>
+    <canvas class="scene" id="cv"></canvas>
     <div class="readout">
-      <div class="count"><span class="n" id="num">٠</span><span class="of" id="of">من ٧</span></div>
+      <div class="count"><span class="n" id="num">0</span><span class="of" id="of"></span></div>
       <div class="stats">
-        <div><span>ثقة العدّ</span><span id="kConf">—</span></div>
-        <div><span>الشوط الحالي</span><span id="kLap">—</span></div>
-        <div><span>المسافة</span><span id="kDist">—</span></div>
-        <div><span>المتبقي تقريباً</span><span id="kEta">—</span></div>
+        <div><span data-i="kConfL"></span><span id="kConf">—</span></div>
+        <div><span data-i="kLapL"></span><span id="kLap">—</span></div>
+        <div><span data-i="kDistL"></span><span id="kDist">—</span></div>
+        <div><span data-i="kEtaL"></span><span id="kEta">—</span></div>
         <div class="meter"><i id="meter"></i></div>
       </div>
     </div>
-    <div class="hint" id="hint">اضغط «تشغيل التتبع» وأنت داخل الحرم، أو جرّب المحاكاة بالأسفل.</div>
+    <div class="hint" id="hint"></div>
   </section>
 
   <article class="dua" id="duaCard">
-    <span class="k" id="duaK">قبل الوصول</span>
-    <p class="t" id="duaT"></p>
+    <span class="k" id="duaK"></span>
+    <p class="t" id="duaT" lang="ar" dir="rtl"></p>
+    <p class="tr" id="duaTr" hidden></p>
     <span class="s" id="duaS"></span>
     <div class="tip" id="duaTip" hidden></div>
   </article>
 
   <div class="ctrls">
-    <button class="primary wide" id="bTrack">تشغيل التتبع</button>
-    <button id="bMinus">− شوط</button>
-    <button id="bPlus">+ شوط</button>
-    <button id="bHere">ابدأ الطواف من هنا</button>
-    <button id="bSai">انتقل إلى السعي</button>
-    <button class="wide" id="bPocket">وضع الجيب · شاشة سوداء توفّر البطارية</button>
+    <button class="primary wide" id="bTrack"></button>
+    <button id="bMinus" data-i="bMinus"></button>
+    <button id="bPlus" data-i="bPlus"></button>
+    <button id="bHere" data-i="bHere"></button>
+    <button id="bSai" data-i="bSai"></button>
+    <button class="wide" id="bPocket" data-i="bPocket"></button>
   </div>
 
   <details class="panel">
-    <summary>المحاكاة (للتجربة من البيت)</summary>
-    <div class="body">
-      <p class="note">حاج افتراضي يطوف ٧ أشواط ثم يسعى ٧. أثناء الطريق تنقطع الإشارة دقيقة ونصف في الطواف وأكثر من دقيقتين في السعي، وتظهر قراءات خاطئة وقفزات انعكاس. تابع كيف تكمل الحساسات العدّ وحدها.</p>
-      <div class="row">
-        <div><label for="simSpeed">السرعة</label>
-          <select id="simSpeed"><option value="150">×١٥٠</option><option value="60" selected>×٦٠</option><option value="15">×١٥</option><option value="1">حقيقية</option></select></div>
-        <button id="bSim">تشغيل المحاكاة</button>
-      </div>
-    </div>
-  </details>
-
-  <details class="panel">
-    <summary>سجل الأشواط</summary>
+    <summary data-i="logSum"></summary>
     <div class="body"><ul class="log" id="log"></ul></div>
   </details>
 
   <details class="panel">
-    <summary>مكتبة الأدعية والأذكار</summary>
+    <summary data-i="libSum"></summary>
     <div class="body lib" id="lib"></div>
   </details>
 
   <details class="panel">
-    <summary>المعايرة والإعدادات</summary>
+    <summary data-i="setSum"></summary>
     <div class="body">
-      <p class="note">مواقع الصفا والمروة واتجاه الحجر الأسود مضبوطة تقريبياً. لو وقفت عند أحدها اضغط زره ليحفظ موقعك الفعلي.</p>
+      <p class="note" data-i="calNote"></p>
       <div class="row">
-        <button id="bCalBlack">أنا محاذٍ للحجر الأسود</button>
-        <button id="bCalSafa">أنا عند الصفا</button>
-        <button id="bCalMarwa">أنا عند المروة</button>
+        <button id="bCalBlack" data-i="bCalBlack"></button>
+        <button id="bCalSafa" data-i="bCalSafa"></button>
+        <button id="bCalMarwa" data-i="bCalMarwa"></button>
       </div>
       <div class="row">
-        <div><label for="startB">اتجاه خط البداية من مركز الكعبة (°)</label><input type="number" id="startB" min="0" max="359" step="1"></div>
-        <div><label for="voice">التنبيه</label>
-          <select id="voice"><option value="both">صوت واهتزاز</option><option value="vib">اهتزاز فقط</option><option value="none">بدون</option></select></div>
+        <div><label for="startB" data-i="startBL"></label><input type="number" id="startB" min="0" max="359" step="1"></div>
+        <div><label for="voice" data-i="voiceL"></label>
+          <select id="voice"><option value="both" data-i="vBoth"></option><option value="vib" data-i="vVib"></option><option value="none" data-i="vNone"></option></select></div>
       </div>
-      <button class="danger" id="bReset">عمرة جديدة (تصفير الكل)</button>
+      <button class="danger" id="bReset"></button>
     </div>
   </details>
 
   <details class="panel">
-    <summary>كيف يحسب التطبيق الأشواط</summary>
+    <summary data-i="mathSum"></summary>
     <div class="body math">
-      <p class="note"><b>الإحداثيات:</b> تتحول قراءة الـ GPS إلى أمتار على مستوى مماس للأرض عند الكعبة، بنصفي انحناء الإهليلج WGS84.</p>
-      <p class="note"><b>تنقية الموقع:</b> مرشّح كالمان بنموذج سرعة ثابتة لكل محور. وزن القراءة يتناسب عكسياً مع مربع دقتها، وأي قراءة تفشل في اختبار ماهالانوبيس (χ² بدرجتي حرية، ٩٩٪) تُستبعد كقفزة انعكاس.</p>
-      <p class="note"><b>الطواف:</b> التقدّم زاوية تراكمية حول الكعبة يقدّرها مرشّح كالمان ثانٍ. سرعة الدوران من الجيروسكوب بعد إسقاطها على اتجاه الجاذبية (ω·ĝ)، فيعمل العدّ والجوال في الجيب وأثناء انقطاع الـ GPS. أما الـ GPS فيصحّح الزاوية بعدم يقين قدره arctan(σ/r)، فيقلّ وزنه كلما اقتربت من الكعبة. لا يُحتسب الشوط إلا إذا تجاوز التقدير ٣٦٠° بهامش 2σ.</p>
-      <p class="note"><b>السعي:</b> إسقاط الموقع على الخط من الصفا إلى المروة. وعند غياب الإشارة يُحتسب الشوط من انعطاف ١٨٠° يرصده الجيروسكوب بعد عدد كافٍ من الخطوات. طول الخطوة بمعادلة واينبرغ L = K·(a<sub>max</sub>−a<sub>min</sub>)<sup>¼</sup>.</p>
-      <p class="note">العدّ استرشادي. إذا شككت في العدد فابنِ على الأقل، وصحّح بزرّي + و −.</p>
+      <p class="note" data-ih="m1"></p>
+      <p class="note" data-ih="m2"></p>
+      <p class="note" data-ih="m3"></p>
+      <p class="note" data-ih="m4"></p>
+      <p class="note" data-ih="m5"></p>
     </div>
   </details>
 </div>
 
-<div id="pocket" hidden role="dialog" aria-label="وضع الجيب">
-  <div class="pk-n" id="pkN">٠</div>
+<div id="pocket" hidden role="dialog">
+  <div class="pk-n" id="pkN">0</div>
   <div class="pk-l" id="pkL"></div>
-  <div class="pk-h" id="pkH">العدّ والتنبيهات مستمرة · اضغط مطولاً للخروج</div>
+  <div class="pk-h" id="pkH" data-i="pkH"></div>
 </div>
 
 <script>
 (() => {
 'use strict';
 const $ = id => document.getElementById(id);
-const AR = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 const ORD = ['الأول','الثاني','الثالث','الرابع','الخامس','السادس','السابع'];
 const rad = d => d*Math.PI/180, deg = r => r*180/Math.PI;
 const wrap180 = a => ((a%360)+540)%360-180;
 const mod360 = a => ((a%360)+360)%360;
 const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
-const gauss = () => { let u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); };
 const Phi = z => { const t=1/(1+0.3275911*Math.abs(z)/Math.SQRT2);
   const y=1-((((1.061405429*t-1.453152027)*t+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-z*z/2);
   return .5*(1+Math.sign(z)*y); };
@@ -243,6 +238,98 @@ const bearingOf = q => mod360(deg(Math.atan2(q.x,q.y)));
 const DEF={startB:95, safa:{lat:21.42200,lon:39.82745}, marwa:{lat:21.42545,lon:39.82705}};
 const MATAF_R=115, CORR_W=35, MAX_ACC=60;
 const CHI2_2=9.21, CHI2_1=6.63;
+
+/* ================= language ================= */
+const T={
+ar:{
+  title:'رفيق العمرة',
+  st0a:'الإحرام',st0b:'والتلبية',st1a:'الطواف',st1b:'٧ أشواط',st2a:'الركعتان',st2b:'وزمزم',st3a:'السعي',st3b:'٧ أشواط',st4a:'التحلّل',st4b:'حلق أو تقصير',
+  sceneAria:'مشهد حي لموقعك حول الكعبة أو في المسعى',pocketAria:'وضع الجيب',
+  kConfL:'ثقة العدّ',kLapL:'الشوط الحالي',kDistL:'المسافة',kEtaL:'المتبقي تقريباً',
+  bMinus:'− شوط',bPlus:'+ شوط',bHere:'ابدأ الطواف من هنا',bSai:'انتقل إلى السعي',bPocket:'وضع الجيب · شاشة سوداء توفّر البطارية',
+  bTrackOn:'تشغيل التتبع',bTrackOff:'إيقاف التتبع',
+  logSum:'سجل الأشواط',libSum:'مكتبة الأدعية والأذكار',setSum:'المعايرة والإعدادات',mathSum:'كيف يحسب التطبيق الأشواط',
+  calNote:'مواقع الصفا والمروة واتجاه الحجر الأسود مضبوطة تقريبياً. لو وقفت عند أحدها اضغط زره ليحفظ موقعك الفعلي.',
+  bCalBlack:'أنا محاذٍ للحجر الأسود',bCalSafa:'أنا عند الصفا',bCalMarwa:'أنا عند المروة',
+  startBL:'اتجاه خط البداية من مركز الكعبة (°)',voiceL:'التنبيه',vBoth:'صوت واهتزاز',vVib:'اهتزاز فقط',vNone:'بدون',
+  bReset:'عمرة جديدة (تصفير الكل)',bResetConfirm:'اضغط مرة ثانية للتأكيد',
+  pkH:'العدّ والتنبيهات مستمرة · اضغط مطولاً للخروج',
+  m1:'<b>الإحداثيات:</b> تتحول قراءة الـ GPS إلى أمتار على مستوى مماس للأرض عند الكعبة، بنصفي انحناء الإهليلج WGS84.',
+  m2:'<b>تنقية الموقع:</b> مرشّح كالمان بنموذج سرعة ثابتة لكل محور. وزن القراءة يتناسب عكسياً مع مربع دقتها، وأي قراءة تفشل في اختبار ماهالانوبيس (χ² بدرجتي حرية، ٩٩٪) تُستبعد كقفزة انعكاس.',
+  m3:'<b>الطواف:</b> التقدّم زاوية تراكمية حول الكعبة يقدّرها مرشّح كالمان ثانٍ. سرعة الدوران من الجيروسكوب بعد إسقاطها على اتجاه الجاذبية (ω·ĝ)، فيعمل العدّ والجوال في الجيب وأثناء انقطاع الـ GPS. أما الـ GPS فيصحّح الزاوية بعدم يقين قدره arctan(σ/r)، فيقلّ وزنه كلما اقتربت من الكعبة. لا يُحتسب الشوط إلا إذا تجاوز التقدير ٣٦٠° بهامش 2σ.',
+  m4:'<b>السعي:</b> إسقاط الموقع على الخط من الصفا إلى المروة. وعند غياب الإشارة يُحتسب الشوط من انعطاف ١٨٠° يرصده الجيروسكوب بعد عدد كافٍ من الخطوات. طول الخطوة بمعادلة واينبرغ L = K·(a<sub>max</sub>−a<sub>min</sub>)<sup>¼</sup>.',
+  m5:'العدّ استرشادي. إذا شككت في العدد فابنِ على الأقل، وصحّح بزرّي + و −.',
+  gpsOff:'GPS متوقف',gpsNone:'لا توجد إشارة',gpsWeak:a=>'ضعيفة ±'+a+'م',gpsAcc:a=>'±'+a+'م',
+  imuOff:'الحساسات متوقفة',imuFuse:'دمج GPS + حساسات',imuOnly:'الحساسات وحدها',imuNA:'الحساسات غير متاحة',
+  of7:'من ٧',ofSai:'من ٧ سعي',notStarted:'لم يبدأ الشوط الأول',
+  phIdle:'في انتظار الوصول للمطاف',hIdleRun:'ادخل المطاف وسيبدأ العدّ وحده.',hIdle:'اضغط «تشغيل التتبع» وأنت داخل الحرم.',
+  phTawaf:'الطواف',phTawafN:n=>'الطواف · الشوط '+ORD[n-1],
+  hToLine:d=>'اجعل الكعبة عن يسارك واتجه إلى خط الحجر الأسود، فالشوط الأول يبدأ عند عبوره.'+(d!=null?' باقٍ نحو '+d+'°':''),
+  hLaps:n=>'أكملت '+n+' من ٧ أشواط.',hOutMataf:d=>'يبدو أنك خارج المطاف ('+d+'م من الكعبة).',
+  phTawafDone:'تمّ الطواف',hTawafDone:'صلِّ ركعتين واشرب من زمزم، ثم توجّه إلى الصفا فيبدأ السعي وحده.',
+  phSaiN:n=>'السعي · الشوط '+ORD[n-1],hSai:(n,to)=>'أكملت '+n+' من ٧ · اتجه الآن إلى '+to+'.',hOutCorr:'يبدو أنك خارج المسعى، العدّ متوقف حتى تعود.',
+  phDone:'تمّت العمرة بإذن الله',hDone:'بقي الحلق أو التقصير. تقبّل الله منك.',
+  safa:'الصفا',marwa:'المروة',blackStone:'الحجر الأسود',km:x=>x+' كم',pct:x=>x+'٪',
+  logTawaf:n=>'طواف · الشوط '+ORD[n-1],logSai:n=>'سعي · الشوط '+ORD[n-1],logEmpty:'لم يُسجَّل شوط بعد',
+  bnCoarse:'الموقع تقريبي جداً. فعّل «الموقع الدقيق» لهذا التطبيق من إعدادات الجوال.',
+  bnDeniedNative:'إذن الموقع مرفوض. فعّله من إعدادات الجوال › التطبيقات › رفيق العمرة › الأذونات، واختر «الموقع الدقيق».',
+  bnDeniedWeb:'إذن الموقع مرفوض. اسمح به من إعدادات المتصفح. داخل معاينة Claude لا يتاح الموقع، فافتح الملف من رابط https على جوالك. سيكمل التطبيق بالحساسات إن توفرت.',
+  bnWeak:'الإشارة ضعيفة الآن، والعدّ مستمر بالحساسات. يمكنك التصحيح يدوياً بالأزرار.',bnNoGeo:'هذا المتصفح لا يدعم تحديد الموقع.',
+  bnNoFix:'لا يوجد موقع حالي بعد. شغّل التتبع وانتظر الإشارة ثم أعد المحاولة.',bnLine:d=>'حُفظ خط البداية على '+d+'°',bnSafa:'حُفظ موقع الصفا.',bnMarwa:'حُفظ موقع المروة.',
+  anTawafStart:'بدأ تتبع الطواف. اجعل الكعبة عن يسارك واتجه إلى خط الحجر الأسود',anTawafDone:'أتممت الطواف، سبعة أشواط. تقبّل الله',
+  anLap:n=>'انتهى الشوط '+ORD[n-1]+'، ابدأ الشوط '+ORD[n],anSaiStart:'بدأ السعي من الصفا، اتجه إلى المروة',
+  anSaiDone:'أتممت السعي، سبعة أشواط. تقبّل الله، بقي الحلق أو التقصير',anLeg:(n,to)=>'انتهى الشوط '+ORD[n-1]+' من السعي، اتجه إلى '+to,anFirst:'بدأ الشوط الأول',
+  tipIdle:'يقطع المعتمر التلبية عند بدء الطواف.',tipIdtiba:'الاضطباع للرجال: كشف الكتف الأيمن طوال طواف العمرة.',
+  tipRaml:'الرَّمَل للرجال في الأشواط الثلاثة الأولى: إسراع المشي مع مقاربة الخطى.',tipAfter:'غطِّ كتفك الأيمن بعد الطواف، ثم صلِّ ركعتين خلف المقام إن تيسّر.',
+  tipGreen:'بين العلَمين الأخضرين يسرع الرجال، ويمشي الباقي على المعتاد.',tipHalq:'الحلق أفضل للرجال، والتقصير جائز. والمرأة تقصّر قدر أنملة.',
+  otherLang:'English',speech:'ar-SA'
+},
+en:{
+  title:'Umrah Companion',
+  st0a:'Ihram',st0b:'& Talbiyah',st1a:'Tawaf',st1b:'7 rounds',st2a:'Prayer',st2b:'& Zamzam',st3a:"Sa'i",st3b:'7 rounds',st4a:'Finish',st4b:'shave or trim',
+  sceneAria:"Live view of your position around the Kaaba or in the Mas'a",pocketAria:'Pocket mode',
+  kConfL:'Confidence',kLapL:'This round',kDistL:'Distance',kEtaL:'Time left',
+  bMinus:'− Round',bPlus:'+ Round',bHere:'Start tawaf here',bSai:"Go to Sa'i",bPocket:'Pocket mode · black screen saves battery',
+  bTrackOn:'Start tracking',bTrackOff:'Stop tracking',
+  logSum:'Round log',libSum:'Duas and remembrance',setSum:'Calibration and settings',mathSum:'How rounds are counted',
+  calNote:'Safa, Marwa and the Black Stone line are set approximately. When you stand at one of them, tap its button to save your exact position.',
+  bCalBlack:"I'm in line with the Black Stone",bCalSafa:"I'm at Safa",bCalMarwa:"I'm at Marwa",
+  startBL:'Start-line bearing from the Kaaba centre (°)',voiceL:'Alerts',vBoth:'Voice and vibration',vVib:'Vibration only',vNone:'Off',
+  bReset:'New Umrah (reset everything)',bResetConfirm:'Tap again to confirm',
+  pkH:'Counting and alerts continue · press and hold to exit',
+  m1:'<b>Coordinates:</b> each GPS reading is converted to metres on a plane tangent to the Earth at the Kaaba, using the radii of curvature of the WGS84 ellipsoid.',
+  m2:'<b>Position filtering:</b> a constant-velocity Kalman filter on each axis. Each reading is weighted by the inverse square of its accuracy, and any reading that fails a Mahalanobis test (χ², 2 degrees of freedom, 99%) is dropped as a reflection jump.',
+  m3:'<b>Tawaf:</b> progress is the cumulative angle around the Kaaba, estimated by a second Kalman filter. The turn rate comes from the gyroscope projected onto gravity (ω·ĝ), so counting continues with the phone in your pocket and during GPS outages. GPS corrects the angle with an uncertainty of arctan(σ/r), so it carries less weight the closer you are to the Kaaba. A round counts only once the estimate passes 360° by a 2σ margin.',
+  m4:"<b>Sa'i:</b> your position is projected onto the line from Safa to Marwa. Without a signal, a round counts when the gyroscope detects a 180° turn after enough steps. Step length uses the Weinberg formula L = K·(a<sub>max</sub>−a<sub>min</sub>)<sup>¼</sup>.",
+  m5:'The count is a guide. If you are unsure of the number, go with the lower count and correct it with + and −.',
+  gpsOff:'GPS off',gpsNone:'No signal',gpsWeak:a=>'Weak ±'+a+' m',gpsAcc:a=>'±'+a+' m',
+  imuOff:'Sensors off',imuFuse:'GPS + sensors',imuOnly:'Sensors only',imuNA:'Sensors unavailable',
+  of7:'of 7',ofSai:"of 7 sa'i",notStarted:'Round 1 not started',
+  phIdle:'Waiting to reach the mataf',hIdleRun:'Enter the mataf and counting starts on its own.',hIdle:'Tap "Start tracking" once you are inside the Haram.',
+  phTawaf:'Tawaf',phTawafN:n=>'Tawaf · Round '+n,
+  hToLine:d=>'Keep the Kaaba on your left and head for the Black Stone line. Round 1 starts when you cross it.'+(d!=null?' About '+d+'° to go.':''),
+  hLaps:n=>n+' of 7 rounds completed.',hOutMataf:d=>'You seem to be outside the mataf ('+d+' m from the Kaaba).',
+  phTawafDone:'Tawaf complete',hTawafDone:"Pray two rak'ahs and drink Zamzam, then walk to Safa. Sa'i starts on its own.",
+  phSaiN:n=>"Sa'i · Round "+n,hSai:(n,to)=>n+' of 7 completed · now head to '+to+'.',hOutCorr:"You seem to be outside the Mas'a. Counting is paused until you return.",
+  phDone:'Umrah complete, God willing',hDone:'Only shaving or trimming remains. May Allah accept it from you.',
+  safa:'Safa',marwa:'Marwa',blackStone:'Black Stone',km:x=>x+' km',pct:x=>x+'%',
+  logTawaf:n=>'Tawaf · Round '+n,logSai:n=>"Sa'i · Round "+n,logEmpty:'No rounds logged yet',
+  bnCoarse:'Your location is only approximate. Turn on "Precise location" for this app in your phone settings.',
+  bnDeniedNative:'Location permission is off. Turn it on in Settings › Apps › Umrah Companion › Permissions, and choose "Precise".',
+  bnDeniedWeb:'Location permission was denied. Allow it in your browser settings. Location is not available inside the Claude preview, so open the file from an https link on your phone. The app keeps counting with the sensors if they are available.',
+  bnWeak:'The signal is weak right now, so counting continues with the sensors. You can correct the count with the buttons.',bnNoGeo:'This browser does not support location.',
+  bnNoFix:'There is no position yet. Start tracking, wait for a signal, then try again.',bnLine:d=>'Start line saved at '+d+'°',bnSafa:'Safa position saved.',bnMarwa:'Marwa position saved.',
+  anTawafStart:'Tawaf tracking started. Keep the Kaaba on your left and head for the Black Stone line.',anTawafDone:'Tawaf complete, seven rounds. May Allah accept it.',
+  anLap:n=>'Round '+n+' done. Starting round '+(n+1)+'.',anSaiStart:"Sa'i started at Safa. Head for Marwa.",
+  anSaiDone:"Sa'i complete, seven rounds. May Allah accept it. Shaving or trimming remains.",anLeg:(n,to)=>"Sa'i round "+n+' done. Head for '+to+'.',anFirst:'Round one started.',
+  tipIdle:'Stop reciting the Talbiyah when you begin tawaf.',tipIdtiba:"Idtiba' for men: keep the right shoulder uncovered throughout the Umrah tawaf.",
+  tipRaml:'Raml for men in the first three rounds: walk briskly with short steps.',tipAfter:"Cover your right shoulder after tawaf, then pray two rak'ahs behind the Maqam if you can.",
+  tipGreen:'Between the two green markers men walk briskly. Everyone else walks normally.',tipHalq:"Shaving is better for men and trimming is allowed. Women trim a fingertip's length.",
+  otherLang:'العربية',speech:'en-US'
+}};
+const tr=(k,...a)=>{ const v=(T[S.lang]||T.ar)[k]; return typeof v==='function'?v(...a):v; };
+const N=n=>S.lang==='ar'?String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]):String(n);
+const defaultLang=()=>{ try{ return /^ar/i.test(navigator.language||'')?'ar':'en'; }catch(e){ return 'ar'; } };
 
 /* ================= Kalman filter: 1 axis, constant-velocity model ================= */
 class Axis{
@@ -299,17 +386,17 @@ const TF={ax:new Axis(),armed:false,t:0,rej:0,
 const KEY='umrah-companion-v2';
 const fresh = () => ({phase:'idle',auto:0,adj:0,legs:0,legAdj:0,target:'marwa',
   startB:DEF.startB,safa:{...DEF.safa},marwa:{...DEF.marwa},lapTimes:[],legTimes:[],t0:null,s0:null,
-  th:null,thP:null,steps:0,dist:0,mode:'both'});
+  th:null,thP:null,steps:0,dist:0,mode:'both',lang:defaultLang()});
 let S; try{ S=JSON.parse(localStorage.getItem(KEY)); }catch(e){}
 S=Object.assign(fresh(),S||{});
 if(S.th!==null && S.phase==='tawaf') TF.arm(S.th,S.thP||25,Date.now()/1000);
 const save=()=>{ if(TF.armed){ S.th=TF.ax.x; S.thP=TF.ax.P[0][0]; } try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} };
 const laps = () => clamp(S.auto+S.adj,0,7);
 const legs = () => clamp(S.legs+S.legAdj,0,7);
-const keepSettings = () => ({startB:S.startB,safa:S.safa,marwa:S.marwa,mode:S.mode});
+const keepSettings = () => ({startB:S.startB,safa:S.safa,marwa:S.marwa,mode:S.mode,lang:S.lang});
 
 /* ================= feedback ================= */
-/* native (Android via Capacitor): vibration and Arabic speech. Inert on the web. */
+/* native (Android via Capacitor): vibration and speech. Inert on the web. */
 const NATIVE=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
 const RP=nm=>{ const C=window.Capacitor; try{ if(C.registerPlugin) return C.registerPlugin(nm); }catch(e){} return (C.Plugins||{})[nm]; };
 const Haptics=NATIVE?RP('Haptics'):null, TTS=NATIVE?RP('TextToSpeech'):null;
@@ -319,9 +406,9 @@ function announce(text,pattern=[200,80,200]){
     else if(navigator.vibrate) try{navigator.vibrate(pattern)}catch(e){}
   }
   if(S.mode==='both'){
-    if(TTS){ Promise.resolve().then(()=>TTS.stop()).catch(()=>{}).then(()=>TTS.speak({text,lang:'ar-SA',rate:.95,volume:1,category:'playback'})).catch(()=>{}); }
+    if(TTS){ Promise.resolve().then(()=>TTS.stop()).catch(()=>{}).then(()=>TTS.speak({text,lang:tr('speech'),rate:.95,volume:1,category:'playback'})).catch(()=>{}); }
     else if('speechSynthesis' in window){
-      try{ const u=new SpeechSynthesisUtterance(text); u.lang='ar-SA'; u.rate=.95; speechSynthesis.cancel(); speechSynthesis.speak(u); }catch(e){}
+      try{ const u=new SpeechSynthesisUtterance(text); u.lang=tr('speech'); u.rate=.95; speechSynthesis.cancel(); speechSynthesis.speak(u); }catch(e){}
     }
   }
 }
@@ -331,7 +418,7 @@ document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==
 
 /* ================= engine: fuses GPS, gyroscope and steps ================= */
 const Eng={source:null,lastFix:0,lastGps:-1e9,lastGyro:-1e9,acc:null,live:null,tS:null,H:0,hBuf:[],lastUturn:-1e9,stepsLeg:0,lastStepT:-1e9,
-  now(){ return this.source==='sim'?Sim.clock:Date.now()/1000; },
+  now(){ return Date.now()/1000; },
   gyroOn(t){ return t-this.lastGyro<3; },
   gpsFresh(t){ return t-this.lastGps<12; },
   resetRuntime(){ Object.assign(this,{lastFix:0,lastGps:-1e9,lastGyro:-1e9,acc:null,live:null,tS:null,H:0,hBuf:[],lastUturn:-1e9,stepsLeg:0}); PF.reset(); },
@@ -396,26 +483,26 @@ function armFromBearing(b,sig,dist,t){
 function startTawaf(b,sig,dist,t){
   S.phase='tawaf'; S.auto=0; S.adj=0; S.lapTimes=[]; S.t0=t;
   armFromBearing(b,sig,dist,t);
-  announce('بدأ تتبع الطواف. اجعل الكعبة عن يسارك واتجه إلى خط الحجر الأسود',[100]);
+  announce(tr('anTawafStart'),[100]);
 }
 function lapDone(t){
   S.lapTimes.push(t); Scene.burst();
   const n=laps();
-  if(n>=7){ S.phase='tawafDone'; S.th=null; TF.armed=false; announce('أتممت الطواف، سبعة أشواط. تقبّل الله',[300,100,300,100,300]); }
-  else announce('انتهى الشوط '+ORD[n-1]+'، ابدأ الشوط '+ORD[n]);
+  if(n>=7){ S.phase='tawafDone'; S.th=null; TF.armed=false; announce(tr('anTawafDone'),[300,100,300,100,300]); }
+  else announce(tr('anLap',n));
   popCount();
 }
 function startSai(t){
   S.phase='sai'; S.legs=0; S.legAdj=0; S.target='marwa'; S.legTimes=[]; S.s0=t;
   Eng.tS=null; Eng.stepsLeg=0; Eng.hBuf=[]; TF.armed=false; S.th=null;
-  announce('بدأ السعي من الصفا، اتجه إلى المروة',[100]);
+  announce(tr('anSaiStart'),[100]);
 }
 function leg(t){
   S.legs++; S.target=S.target==='marwa'?'safa':'marwa'; Eng.stepsLeg=0;
   S.legTimes.push(t); Scene.burst();
   const n=legs();
-  if(n>=7){ S.phase='done'; announce('أتممت السعي، سبعة أشواط. تقبّل الله، بقي الحلق أو التقصير',[300,100,300,100,300]); }
-  else announce('انتهى الشوط '+ORD[n-1]+' من السعي، اتجه إلى '+(S.target==='marwa'?'المروة':'الصفا'));
+  if(n>=7){ S.phase='done'; announce(tr('anSaiDone'),[300,100,300,100,300]); }
+  else announce(tr('anLeg',n,tr(S.target)));
   popCount(); save();
 }
 
@@ -455,69 +542,18 @@ const Motion={on:false,g:{x:0,y:0,z:9.8},bias:0,v:0,lastT:0,lp:9.8,mx:-1e9,mn:1e
 let watchId=null;
 function banner(msg){ const b=$('banner'); b.textContent=msg||''; b.hidden=!msg; }
 async function startTracking(){
-  stopSim(); Eng.source='gps';
+  Eng.source='gps';
   await Motion.start();
   if('geolocation' in navigator){
     watchId=navigator.geolocation.watchPosition(
-      p=>{ banner(p.coords.accuracy>500?'الموقع تقريبي جداً. فعّل «الموقع الدقيق» لهذا التطبيق من إعدادات الجوال.':''); Eng.gps(Date.now()/1000,p.coords.latitude,p.coords.longitude,p.coords.accuracy); },
-      e=>{ if(e.code===1){ banner(NATIVE?'إذن الموقع مرفوض. فعّله من إعدادات الجوال › التطبيقات › رفيق العمرة › الأذونات، واختر «الموقع الدقيق».':'إذن الموقع مرفوض. اسمح به من إعدادات المتصفح. داخل معاينة Claude لا يتاح الموقع: افتح الملف من رابط https على جوالك أو جرّب المحاكاة. سيكمل التطبيق بالحساسات إن توفرت.'); if(watchId!==null){navigator.geolocation.clearWatch(watchId);watchId=null;} }
-           else banner('الإشارة ضعيفة الآن، والعدّ مستمر بالحساسات. يمكنك التصحيح يدوياً بالأزرار.'); },
+      p=>{ banner(p.coords.accuracy>500?tr('bnCoarse'):''); Eng.gps(Date.now()/1000,p.coords.latitude,p.coords.longitude,p.coords.accuracy); },
+      e=>{ if(e.code===1){ banner(tr(NATIVE?'bnDeniedNative':'bnDeniedWeb')); if(watchId!==null){navigator.geolocation.clearWatch(watchId);watchId=null;} }
+           else banner(tr('bnWeak')); },
       {enableHighAccuracy:true,maximumAge:0,timeout:20000});
-  } else banner('هذا المتصفح لا يدعم تحديد الموقع.');
+  } else banner(tr('bnNoGeo'));
   keepAwake(); render();
 }
 function stopTracking(){ if(watchId!==null){ navigator.geolocation.clearWatch(watchId); watchId=null; } Motion.stop(); if(Eng.source==='gps') Eng.source=null; render(); }
-
-/* ================= simulation ================= */
-const Sim={clock:0,ev:[],i:0,run:false,
-  build(){
-    const ev=[], A=toXY(S.safa), B=toXY(S.marwa), blackouts=[];
-    let t=0,nextGps=0,nextStep=0,n=0,last={x:0,y:0};
-    const emit=(x,y,d,dt,moving)=>{
-      last={x,y};
-      ev.push({t,k:'gyro',d:d+gauss()*.4*Math.sqrt(dt)+.05*dt,dt});
-      if(moving&&t>=nextStep){ ev.push({t,k:'step',L:.62+gauss()*.04}); nextStep=t+.55; }
-      if(t>=nextGps){ nextGps=t+1; n++;
-        if(!blackouts.some(([a,b])=>t>=a&&t<b)){
-          let acc=8+Math.random()*14, nx=x+gauss()*acc*.5, ny=y+gauss()*acc*.5;
-          if(n%173===0) acc=95; else if(n%257===0){ nx+=70; ny-=40; acc=20; }
-          const ll=toLL({x:nx,y:ny}); ev.push({t,k:'gps',lat:ll.lat,lon:ll.lon,acc});
-        } }
-      t+=dt;
-    };
-    const R0=28,v=1.0,w=deg(v/R0),b0=S.startB+35,total=7*360+35+25,T1=total/w;
-    blackouts.push([T1*.33,T1*.33+90]);
-    for(let s=0;s<T1;s+=.2){ const b=rad(b0-w*s); emit(R0*Math.sin(b),R0*Math.cos(b),w*.2,.2,true); }
-    const walk=(p,q,sp)=>{ const nn=Math.ceil(Math.hypot(q.x-p.x,q.y-p.y)/sp/.2); for(let i=1;i<=nn;i++) emit(p.x+(q.x-p.x)*i/nn,p.y+(q.y-p.y)*i/nn,0,.2,true); };
-    const stand=(p,sec)=>{ for(let s=0;s<sec;s+=.2) emit(p.x,p.y,0,.2,false); };
-    const turn=p=>{ for(let s=0;s<3;s+=.2) emit(p.x,p.y,-12,.2,false); };
-    stand(last,20); walk(last,A,1.1); stand(A,15); turn(A);
-    const legT=Math.hypot(B.x-A.x,B.y-A.y)/1.3;
-    for(let k=0;k<7;k++){
-      const [p,q]=k%2?[B,A]:[A,B];
-      if(k===3) blackouts.push([t+legT*.7,t+legT+40]);
-      walk(p,q,1.3); stand(q,15); if(k<6) turn(q);
-    }
-    return ev;
-  },
-  start(){
-    stopTracking(); Object.assign(S,fresh(),keepSettings()); TF.armed=false; Eng.resetRuntime();
-    Eng.source='sim'; this.ev=this.build(); this.i=0; this.clock=0; this.run=true;
-    banner(''); keepAwake(); save(); render();
-  },
-  tick(dtReal){
-    if(!this.run) return;
-    this.clock+=Math.min(dtReal,.1)*(+$('simSpeed').value);
-    while(this.i<this.ev.length&&this.ev[this.i].t<=this.clock){
-      const e=this.ev[this.i++];
-      if(e.k==='gps') Eng.gps(e.t,e.lat,e.lon,e.acc);
-      else if(e.k==='gyro') Eng.gyro(e.t,e.d,e.dt);
-      else Eng.step(e.t,e.L);
-    }
-    if(this.i>=this.ev.length) stopSim();
-  }
-};
-function stopSim(){ if(Sim.run){ Sim.run=false; } if(Eng.source==='sim') Eng.source=null; render(); }
 
 /* ================= scene: canvas, 60 fps ================= */
 const cv=$('cv'), ctx=cv.getContext('2d');
@@ -576,7 +612,7 @@ const Scene={W:0,H:0,dpr:1,crowd:[],sai:[],parts:[],trail:[],lastTrail:0,pulse:0
     const s1=P(S.startB,.82), s2p=P(S.startB,1.2);
     c.strokeStyle=C.ok; c.lineWidth=4; c.beginPath(); c.moveTo(...s1); c.lineTo(...s2p); c.stroke();
     c.fillStyle=C.ok; c.font='600 12px '+getComputedStyle(document.body).fontFamily; c.textAlign='center';
-    const lp=P(S.startB,1.2), tw=c.measureText('الحجر الأسود').width; c.textAlign='center'; c.fillText('الحجر الأسود',clamp(lp[0],tw/2+6,W-tw/2-6),lp[1]-16);
+    const bs=tr('blackStone'), lp=P(S.startB,1.2), tw=c.measureText(bs).width; c.textAlign='center'; c.fillText(bs,clamp(lp[0],tw/2+6,W-tw/2-6),lp[1]-30);
     // crowd behind, Kaaba, crowd in front
     const dot=(p,front)=>{ const y=Math.cos(rad(p.a)); if((y<=0)!==front) return;
       const q=P(p.a,p.r); c.globalAlpha=.35+.35*p.z; c.beginPath(); c.arc(q[0],q[1],1.4+1.4*p.z*(front?1.2:.8),0,7); c.fill(); };
@@ -630,7 +666,7 @@ const Scene={W:0,H:0,dpr:1,crowd:[],sai:[],parts:[],trail:[],lastTrail:0,pulse:0
     // hills
     const hill=(t,label,up)=>{ const p=at(t,0); c.fillStyle=C.crowd; c.globalAlpha=.5; c.beginPath(); c.ellipse(p[0],p[1],p[2]*wb*.22,p[2]*14,0,Math.PI,0); c.fill(); c.globalAlpha=1;
       c.fillStyle=C.ink; c.font='600 '+Math.round(12+6*p[2])+'px '+getComputedStyle(document.body).fontFamily; c.textAlign='center'; c.fillText(label,p[0],p[1]+(up?-18:30)); };
-    hill(0,'الصفا',false); hill(1,'المروة',true);
+    hill(0,tr('safa'),false); hill(1,tr('marwa'),true);
     // crowd
     c.fillStyle=C.crowd;
     this.sai.forEach(p=>{ const q=at(p.t,p.u*.9); c.globalAlpha=.55; c.beginPath(); c.arc(q[0],q[1],1.2+2*q[2],0,7); c.fill(); });
@@ -648,130 +684,132 @@ const Scene={W:0,H:0,dpr:1,crowd:[],sai:[],parts:[],trail:[],lastTrail:0,pulse:0
     }
     // leg pips
     for(let i=0;i<7;i++){ const y=yb-12-i*((yb-yt-24)/6); c.fillStyle=i<legs()?C.ok:C.line; c.beginPath(); c.arc(16,y,7,0,7); c.fill();
-      c.fillStyle=i<legs()?C.surface:C.muted; c.font='600 9px sans-serif'; c.textAlign='center'; c.fillText(AR(i+1),16,y+3); }
+      c.fillStyle=i<legs()?C.surface:C.muted; c.font='600 9px sans-serif'; c.textAlign='center'; c.fillText(N(i+1),16,y+3); }
     if(S.phase==='done'){ c.fillStyle=C.ok; c.globalAlpha=.08+(reduced?0:.05*Math.sin(performance.now()/500)); c.fillRect(0,0,W,H); c.globalAlpha=1; }
   }
 };
 
 /* ================= duas (authentic, with sources) ================= */
 const D={
-  talbiya:{k:'التلبية',t:'لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ، لَبَّيْكَ لَا شَرِيكَ لَكَ لَبَّيْكَ، إِنَّ الْحَمْدَ وَالنِّعْمَةَ لَكَ وَالْمُلْكَ، لَا شَرِيكَ لَكَ',s:'متفق عليه'},
-  masjid:{k:'عند دخول المسجد',t:'بِسْمِ اللَّهِ، وَالصَّلَاةُ وَالسَّلَامُ عَلَى رَسُولِ اللَّهِ، اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ',s:'رواه مسلم وغيره'},
-  hajar:{k:'عند محاذاة الحجر الأسود',t:'بِسْمِ اللَّهِ، وَاللَّهُ أَكْبَرُ',s:'التكبير في البخاري، والبسملة ثابتة عن ابن عمر'},
-  yamani:{k:'بين الركن اليماني والحجر الأسود',t:'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',s:'رواه أبو داود'},
-  dhikr1:{k:'أثناء الشوط',t:'سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ',s:'رواه مسلم · ادعُ بما تحب، ولم يثبت دعاء مخصوص لكل شوط'},
-  dhikr2:{k:'أثناء الشوط',t:'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',s:'متفق عليه · ادعُ بما تحب واقرأ القرآن'},
-  dhikr3:{k:'أثناء الشوط',t:'إِنَّمَا جُعِلَ الطَّوَافُ بِالْبَيْتِ وَبَيْنَ الصَّفَا وَالْمَرْوَةِ وَرَمْيُ الْجِمَارِ لِإِقَامَةِ ذِكْرِ اللَّهِ',s:'حديث رواه أبو داود والترمذي'},
-  maqam:{k:'بعد الطواف',t:'وَاتَّخِذُوا مِن مَّقَامِ إِبْرَاهِيمَ مُصَلًّى',s:'البقرة ١٢٥ · ثم ركعتان بالكافرون والإخلاص (رواه مسلم)'},
-  zamzam:{k:'ماء زمزم',t:'مَاءُ زَمْزَمَ لِمَا شُرِبَ لَهُ',s:'حديث رواه أحمد وابن ماجه · اشرب وادعُ بما تحب'},
-  safa1:{k:'عند الصفا أول السعي',t:'إِنَّ الصَّفَا وَالْمَرْوَةَ مِن شَعَائِرِ اللَّهِ · أَبْدَأُ بِمَا بَدَأَ اللَّهُ بِهِ',s:'رواه مسلم من حديث جابر'},
-  tahlil:{k:'على الصفا والمروة، مستقبلاً القبلة',t:'اللَّهُ أَكْبَرُ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ، أَنْجَزَ وَعْدَهُ، وَنَصَرَ عَبْدَهُ، وَهَزَمَ الْأَحْزَابَ وَحْدَهُ',s:'رواه مسلم · يقولها ثلاثاً ويدعو بينها'},
-  green:{k:'أثناء السعي',t:'رَبِّ اغْفِرْ وَارْحَمْ، إِنَّكَ أَنْتَ الْأَعَزُّ الْأَكْرَمُ',s:'ثابت عن ابن مسعود وابن عمر رضي الله عنهم'},
-  halq:{k:'التحلّل',t:'اللَّهُمَّ ارْحَمِ الْمُحَلِّقِينَ',s:'متفق عليه · دعاء النبي ﷺ للمحلّقين ثلاثاً وللمقصّرين مرة'}
+  talbiya:{k:'التلبية',t:'لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ، لَبَّيْكَ لَا شَرِيكَ لَكَ لَبَّيْكَ، إِنَّ الْحَمْدَ وَالنِّعْمَةَ لَكَ وَالْمُلْكَ، لَا شَرِيكَ لَكَ',s:'متفق عليه',ke:"Talbiyah",en:"Here I am, O Allah, here I am. Here I am, You have no partner, here I am. All praise, blessing and dominion are Yours. You have no partner.",se:"Bukhari and Muslim"},
+  masjid:{k:'عند دخول المسجد',t:'بِسْمِ اللَّهِ، وَالصَّلَاةُ وَالسَّلَامُ عَلَى رَسُولِ اللَّهِ، اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ',s:'رواه مسلم وغيره',ke:"Entering the mosque",en:"In the name of Allah, and peace and blessings be upon the Messenger of Allah. O Allah, open for me the gates of Your mercy.",se:"Muslim and others"},
+  hajar:{k:'عند محاذاة الحجر الأسود',t:'بِسْمِ اللَّهِ، وَاللَّهُ أَكْبَرُ',s:'التكبير في البخاري، والبسملة ثابتة عن ابن عمر',ke:"In line with the Black Stone",en:"In the name of Allah, and Allah is the Greatest.",se:"The takbir is in Bukhari; the basmalah is authentically reported from Ibn Umar"},
+  yamani:{k:'بين الركن اليماني والحجر الأسود',t:'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',s:'رواه أبو داود',ke:"Between the Yemeni Corner and the Black Stone",en:"Our Lord, give us good in this world and good in the Hereafter, and protect us from the punishment of the Fire.",se:"Abu Dawud"},
+  dhikr1:{k:'أثناء الشوط',t:'سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ',s:'رواه مسلم · ادعُ بما تحب، ولم يثبت دعاء مخصوص لكل شوط',ke:"During the round",en:"Glory be to Allah, praise be to Allah, there is no god but Allah, and Allah is the Greatest.",se:"Muslim · Supplicate as you wish; no specific dua is established for each round"},
+  dhikr2:{k:'أثناء الشوط',t:'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',s:'متفق عليه · ادعُ بما تحب واقرأ القرآن',ke:"During the round",en:"There is no power and no strength except with Allah.",se:"Bukhari and Muslim · Supplicate as you wish and recite the Quran"},
+  dhikr3:{k:'أثناء الشوط',t:'إِنَّمَا جُعِلَ الطَّوَافُ بِالْبَيْتِ وَبَيْنَ الصَّفَا وَالْمَرْوَةِ وَرَمْيُ الْجِمَارِ لِإِقَامَةِ ذِكْرِ اللَّهِ',s:'حديث رواه أبو داود والترمذي',ke:"During the round",en:"Circling the House, going between Safa and Marwa, and stoning the pillars were ordained only to establish the remembrance of Allah.",se:"Hadith reported by Abu Dawud and Tirmidhi"},
+  maqam:{k:'بعد الطواف',t:'وَاتَّخِذُوا مِن مَّقَامِ إِبْرَاهِيمَ مُصَلًّى',s:'البقرة ١٢٥ · ثم ركعتان بالكافرون والإخلاص (رواه مسلم)',ke:"After tawaf",en:"And take the station of Abraham as a place of prayer.",se:"Al-Baqarah 2:125 · then two rak'ahs with al-Kafirun and al-Ikhlas (Muslim)"},
+  zamzam:{k:'ماء زمزم',t:'مَاءُ زَمْزَمَ لِمَا شُرِبَ لَهُ',s:'حديث رواه أحمد وابن ماجه · اشرب وادعُ بما تحب',ke:"Zamzam water",en:"Zamzam water is for whatever it is drunk for.",se:"Hadith reported by Ahmad and Ibn Majah · drink and supplicate as you wish"},
+  safa1:{k:'عند الصفا أول السعي',t:'إِنَّ الصَّفَا وَالْمَرْوَةَ مِن شَعَائِرِ اللَّهِ · أَبْدَأُ بِمَا بَدَأَ اللَّهُ بِهِ',s:'رواه مسلم من حديث جابر',ke:"At Safa, start of Sa'i",en:"Indeed, Safa and Marwa are among the symbols of Allah · I begin with what Allah began with.",se:"Muslim, from the hadith of Jabir"},
+  tahlil:{k:'على الصفا والمروة، مستقبلاً القبلة',t:'اللَّهُ أَكْبَرُ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ، أَنْجَزَ وَعْدَهُ، وَنَصَرَ عَبْدَهُ، وَهَزَمَ الْأَحْزَابَ وَحْدَهُ',s:'رواه مسلم · يقولها ثلاثاً ويدعو بينها',ke:"On Safa and Marwa, facing the Qiblah",en:"Allah is the Greatest. There is no god but Allah alone, without partner. His is the dominion and His is the praise, and He has power over all things. There is no god but Allah alone. He fulfilled His promise, supported His servant, and defeated the confederates alone.",se:"Muslim · say it three times with supplication in between"},
+  green:{k:'أثناء السعي',t:'رَبِّ اغْفِرْ وَارْحَمْ، إِنَّكَ أَنْتَ الْأَعَزُّ الْأَكْرَمُ',s:'ثابت عن ابن مسعود وابن عمر رضي الله عنهم',ke:"During Sa'i",en:"My Lord, forgive and have mercy. You are the Most Mighty, the Most Generous.",se:"Authentically reported from Ibn Mas'ud and Ibn Umar"},
+  halq:{k:'التحلّل',t:'اللَّهُمَّ ارْحَمِ الْمُحَلِّقِينَ',s:'متفق عليه · دعاء النبي ﷺ للمحلّقين ثلاثاً وللمقصّرين مرة',ke:"Leaving ihram",en:"O Allah, have mercy on those who shave their heads.",se:"Bukhari and Muslim · the Prophet ﷺ prayed three times for those who shave and once for those who trim"}
 };
 const LIB=['talbiya','masjid','hajar','yamani','dhikr1','dhikr2','dhikr3','maqam','zamzam','safa1','tahlil','green','halq'];
-(function buildLib(){ const box=$('lib');
+function buildLib(){ const box=$('lib'), en=S.lang==='en'; box.textContent='';
   LIB.forEach(id=>{ const d=D[id]; const h=document.createElement('h3'),p=document.createElement('p'),s=document.createElement('small');
-    h.textContent=d.k; p.textContent=d.t; s.textContent=d.s; box.append(h,p,s); });
-})();
+    h.textContent=en?d.ke:d.k; p.textContent=d.t; p.lang='ar'; p.dir='rtl'; s.textContent=en?d.se:d.s; box.append(h,p);
+    if(en){ const q=document.createElement('p'); q.className='tr'; q.textContent=d.en; box.append(q); }
+    box.append(s); });
+}
 function pickDua(){
   const ph=S.phase, L=Eng.live; let id='talbiya', tip='';
-  if(ph==='idle'){ id=Eng.source?'masjid':'talbiya'; tip='يقطع المعتمر التلبية عند بدء الطواف.'; }
+  if(ph==='idle'){ id=Eng.source?'masjid':'talbiya'; tip='tipIdle'; }
   else if(ph==='tawaf'){
     const th=TF.armed?TF.ax.x:-1;
-    if(th<0){ id='hajar'; tip='الاضطباع للرجال: كشف الكتف الأيمن طوال طواف العمرة.'; }
+    if(th<0){ id='hajar'; tip='tipIdtiba'; }
     else { const f=(th%360)/360, n=laps();
       if(f<.04||f>.97) id='hajar'; else if(f>.75) id='yamani'; else id=['dhikr1','dhikr2','dhikr3'][n%3];
-      if(n<3) tip='الرَّمَل للرجال في الأشواط الثلاثة الأولى: إسراع المشي مع مقاربة الخطى.'; }
+      if(n<3) tip='tipRaml'; }
   }
-  else if(ph==='tawafDone'){ id=(Date.now()/8000|0)%2?'zamzam':'maqam'; tip='غطِّ كتفك الأيمن بعد الطواف، ثم صلِّ ركعتين خلف المقام إن تيسّر.'; }
+  else if(ph==='tawafDone'){ id=(Date.now()/8000|0)%2?'zamzam':'maqam'; tip='tipAfter'; }
   else if(ph==='sai'){
     const t=Eng.tS;
     if(legs()===0&&(t===null||t<.12)) id='safa1';
     else if(t!==null&&((S.target==='marwa'&&t>.9)||(S.target==='safa'&&t<.1))) id='tahlil';
     else id='green';
-    tip='بين العلَمين الأخضرين يسرع الرجال، ويمشي الباقي على المعتاد.';
+    tip='tipGreen';
   }
-  else if(ph==='done'){ id='halq'; tip='الحلق أفضل للرجال، والتقصير جائز. والمرأة تقصّر قدر أنملة.'; }
+  else if(ph==='done'){ id='halq'; tip='tipHalq'; }
   return {d:D[id],tip};
 }
 
 /* ================= UI ================= */
-let lastNum=null;
+let lastNum=null, armReset=0, resetArmed=false;
 function popCount(){ const n=$('num'); n.classList.remove('pop'); void n.offsetWidth; n.classList.add('pop'); }
-const fmtDur = s => { s=Math.max(0,Math.round(s)); return AR(Math.floor(s/60))+':'+AR(String(s%60).padStart(2,'0')); };
+const fmtDur = s => { s=Math.max(0,Math.round(s)); return N(Math.floor(s/60))+':'+N(String(s%60).padStart(2,'0')); };
 function render(){
   readTokens();
   const t=Eng.now(), running=!!Eng.source;
   // chips
   const gc=$('gps'), age=t-Eng.lastFix; gc.className='chip';
-  if(!running) $('gpsTxt').textContent='GPS متوقف';
-  else if(!Eng.lastFix||age>15){ gc.classList.add('bad'); $('gpsTxt').textContent='لا توجد إشارة'; }
-  else if(Eng.acc>MAX_ACC){ gc.classList.add('warn'); $('gpsTxt').textContent='ضعيفة ±'+AR(Math.round(Eng.acc))+'م'; }
-  else { gc.classList.add(Eng.acc>25?'warn':'ok'); $('gpsTxt').textContent=(Eng.source==='sim'?'محاكاة ':'')+'±'+AR(Math.round(Eng.acc))+'م'; }
+  if(!running) $('gpsTxt').textContent=tr('gpsOff');
+  else if(!Eng.lastFix||age>15){ gc.classList.add('bad'); $('gpsTxt').textContent=tr('gpsNone'); }
+  else if(Eng.acc>MAX_ACC){ gc.classList.add('warn'); $('gpsTxt').textContent=tr('gpsWeak',N(Math.round(Eng.acc))); }
+  else { gc.classList.add(Eng.acc>25?'warn':'ok'); $('gpsTxt').textContent=tr('gpsAcc',N(Math.round(Eng.acc))); }
   const ic=$('imu'); ic.className='chip';
-  if(!running) $('imuTxt').textContent='الحساسات متوقفة';
-  else if(Eng.gyroOn(t)){ ic.classList.add('ok'); $('imuTxt').textContent=Eng.gpsFresh(t)?'دمج GPS + حساسات':'الحساسات وحدها'; }
-  else { ic.classList.add('warn'); $('imuTxt').textContent='الحساسات غير متاحة'; }
+  if(!running) $('imuTxt').textContent=tr('imuOff');
+  else if(Eng.gyroOn(t)){ ic.classList.add('ok'); $('imuTxt').textContent=tr(Eng.gpsFresh(t)?'imuFuse':'imuOnly'); }
+  else { ic.classList.add('warn'); $('imuTxt').textContent=tr('imuNA'); }
 
   // stepper
   const ph=S.phase, idx={idle:0,tawaf:1,tawafDone:2,sai:3,done:4}[ph];
   for(let i=0;i<5;i++) $('st'+i).className=i<idx?'done':i===idx?'on':'';
 
-  let phase='',hint='',num=0,of='من ٧',conf=null,lapT='—',eta='—',meter=0;
+  let phase='',hint='',num=0,of=tr('of7'),conf=null,lapT='—',eta='—',meter=0;
   const L=Eng.live;
-  if(ph==='idle'){ phase='في انتظار الوصول للمطاف'; hint=running?'ادخل المطاف وسيبدأ العدّ وحده.':'اضغط «تشغيل التتبع» وأنت داخل الحرم، أو جرّب المحاكاة بالأسفل.'; }
+  if(ph==='idle'){ phase=tr('phIdle'); hint=tr(running?'hIdleRun':'hIdle'); }
   else if(ph==='tawaf'){
     const th=TF.armed?TF.ax.x:null, sg=TF.sigma(), n=laps();
-    if(th===null||th<0){ phase='الطواف'; of='لم يبدأ الشوط الأول';
-      hint='اجعل الكعبة عن يسارك واتجه إلى خط الحجر الأسود، فالشوط الأول يبدأ عند عبوره.'+(th!==null?' باقٍ نحو '+AR(Math.round(-th))+'°':''); }
+    if(th===null||th<0){ phase=tr('phTawaf'); of=tr('notStarted'); hint=tr('hToLine',th!==null?N(Math.round(-th)):null); }
     else{ const f=n>=7?1:clamp((th-360*n)/360,0,1);
-      num=Math.min(7,n+1); phase='الطواف · الشوط '+ORD[Math.min(6,n)]; meter=f;
-      hint='أكملت '+AR(n)+' من ٧ أشواط.';
+      num=Math.min(7,n+1); phase=tr('phTawafN',Math.min(7,n+1)); meter=f;
+      hint=tr('hLaps',N(n));
       conf=Phi((th-360*S.auto)/Math.max(sg,.5));
       if(S.auto===0) conf=Phi(th/Math.max(sg,.5));
     }
     const last=S.lapTimes.length?S.lapTimes[S.lapTimes.length-1]:S.t0;
     if(last!=null) lapT=fmtDur(t-last);
     if(S.lapTimes.length){ const avg=(S.lapTimes[S.lapTimes.length-1]-S.t0)/S.lapTimes.length; eta=fmtDur(avg*(7-n)-(t-last)); }
-    if(L&&!L.inMataf&&L.dist>MATAF_R&&Eng.gpsFresh(t)) hint='يبدو أنك خارج المطاف ('+AR(Math.round(L.dist))+'م من الكعبة).';
+    if(L&&!L.inMataf&&L.dist>MATAF_R&&Eng.gpsFresh(t)) hint=tr('hOutMataf',N(Math.round(L.dist)));
   }
-  else if(ph==='tawafDone'){ phase='تمّ الطواف'; num=7; meter=1; conf=1; hint='صلِّ ركعتين واشرب من زمزم، ثم توجّه إلى الصفا فيبدأ السعي وحده.'; }
+  else if(ph==='tawafDone'){ phase=tr('phTawafDone'); num=7; meter=1; conf=1; hint=tr('hTawafDone'); }
   else if(ph==='sai'){
-    const n=legs(); num=Math.min(7,n+1); phase='السعي · الشوط '+ORD[Math.min(6,n)];
-    hint='أكملت '+AR(n)+' من ٧ · اتجه الآن إلى '+(S.target==='marwa'?'المروة':'الصفا')+'.';
+    const n=legs(); num=Math.min(7,n+1); phase=tr('phSaiN',Math.min(7,n+1));
+    hint=tr('hSai',N(n),tr(S.target));
     if(Eng.tS!==null) meter=clamp(S.target==='marwa'?Eng.tS:1-Eng.tS,0,1);
     conf=Eng.gpsFresh(t)?clamp(1-PF.sigma()/40,.5,.99):(Eng.gyroOn(t)?.85:null);
     const last=S.legTimes.length?S.legTimes[S.legTimes.length-1]:S.s0;
     if(last!=null) lapT=fmtDur(t-last);
     if(S.legTimes.length){ const avg=(S.legTimes[S.legTimes.length-1]-S.s0)/S.legTimes.length; eta=fmtDur(avg*(7-n)-(t-last)); }
-    if(L&&!L.inCorr&&Eng.gpsFresh(t)) hint='يبدو أنك خارج المسعى، العدّ متوقف حتى تعود.';
+    if(L&&!L.inCorr&&Eng.gpsFresh(t)) hint=tr('hOutCorr');
   }
-  else if(ph==='done'){ phase='تمّت العمرة بإذن الله'; num=7; of='من ٧ سعي'; meter=1; conf=1; hint='بقي الحلق أو التقصير. تقبّل الله منك.'; }
+  else if(ph==='done'){ phase=tr('phDone'); num=7; of=tr('ofSai'); meter=1; conf=1; hint=tr('hDone'); }
   $('phase').textContent=phase; $('hint').textContent=hint;
-  if(num!==lastNum){ $('num').textContent=AR(num); lastNum=num; }
+  if(num!==lastNum){ $('num').textContent=N(num); lastNum=num; }
   $('of').textContent=of;
-  $('kConf').textContent=conf===null?'—':AR(Math.round(clamp(conf,0,1)*100))+'٪';
+  $('kConf').textContent=conf===null?'—':tr('pct',N(Math.round(clamp(conf,0,1)*100)));
   $('kLap').textContent=lapT; $('kEta').textContent=eta;
-  $('kDist').textContent=S.dist?AR((S.dist/1000).toFixed(2))+' كم':'—';
+  $('kDist').textContent=S.dist?tr('km',N((S.dist/1000).toFixed(2))):'—';
   $('meter').style.width=(meter*100).toFixed(1)+'%';
-  if(!$('pocket').hidden){ $('pkN').textContent=AR(num); $('pkL').textContent=phase; }
+  if(!$('pocket').hidden){ $('pkN').textContent=N(num); $('pkL').textContent=phase; }
 
-  const {d,tip}=pickDua();
-  $('duaK').textContent=d.k; $('duaT').textContent=d.t; $('duaS').textContent=d.s;
-  $('duaTip').textContent=tip; $('duaTip').hidden=!tip;
+  const {d,tip}=pickDua(), en=S.lang==='en';
+  $('duaK').textContent=en?d.ke:d.k; $('duaT').textContent=d.t; $('duaS').textContent=en?d.se:d.s;
+  $('duaTr').textContent=en?d.en:''; $('duaTr').hidden=!en;
+  $('duaTip').textContent=tip?tr(tip):''; $('duaTip').hidden=!tip;
 
-  $('bTrack').textContent=Eng.source==='gps'?'إيقاف التتبع':'تشغيل التتبع';
-  $('bSim').textContent=Sim.run?'إيقاف المحاكاة':'تشغيل المحاكاة';
+  $('bTrack').textContent=tr(Eng.source==='gps'?'bTrackOff':'bTrackOn');
   $('bSai').disabled=ph==='sai'||ph==='done';
   if(document.activeElement!==$('startB')) $('startB').value=Math.round(S.startB);
   $('voice').value=S.mode;
+  if(!resetArmed) $('bReset').textContent=tr('bReset');
 
   const items=[];
-  S.lapTimes.forEach((x,i)=>items.push(['طواف · الشوط '+ORD[i],fmtDur(x-(i?S.lapTimes[i-1]:S.t0))]));
-  S.legTimes.forEach((x,i)=>items.push(['سعي · الشوط '+ORD[i],fmtDur(x-(i?S.legTimes[i-1]:S.s0))]));
+  S.lapTimes.forEach((x,i)=>items.push([tr('logTawaf',i+1),fmtDur(x-(i?S.lapTimes[i-1]:S.t0))]));
+  S.legTimes.forEach((x,i)=>items.push([tr('logSai',i+1),fmtDur(x-(i?S.legTimes[i-1]:S.s0))]));
   const log=$('log'); log.textContent='';
-  if(!items.length) items.push(['لم يُسجَّل شوط بعد','']);
+  if(!items.length) items.push([tr('logEmpty'),'']);
   items.forEach(([a,b])=>{ const li=document.createElement('li'),x=document.createElement('span'),y=document.createElement('span'); x.textContent=a; y.textContent=b; li.append(x,y); log.append(li); });
 }
 
@@ -779,14 +817,13 @@ function render(){
 let prev=performance.now(), uiAcc=0;
 function loop(now){
   const dt=Math.min(.1,(now-prev)/1000); prev=now;
-  Sim.tick(dt); Scene.frame(dt);
+  Scene.frame(dt);
   uiAcc+=dt; if(uiAcc>.25){ uiAcc=0; render(); }
   requestAnimationFrame(loop);
 }
 
 /* controls */
 $('bTrack').onclick=()=>{ Eng.source==='gps'?stopTracking():startTracking(); };
-$('bSim').onclick=()=>{ Sim.run?stopSim():Sim.start(); };
 $('bPlus').onclick=()=>{ const t=Eng.now();
   if(S.phase==='sai'){ if(legs()<7){ S.legAdj++; S.legs--; leg(t); } }
   else if(S.phase==='idle'||S.phase==='tawaf'){ if(S.phase==='idle'){ S.phase='tawaf'; S.t0=t; } if(laps()<7){ S.adj++; lapDone(t); } }
@@ -798,7 +835,7 @@ $('bMinus').onclick=()=>{
 $('bHere').onclick=()=>{ const t=Eng.now();
   S.phase='tawaf'; S.auto=0; S.adj=0; S.lapTimes=[]; S.t0=t;
   if(Eng.live) S.startB=Math.round(Eng.live.b);
-  TF.arm(0,4,t); announce('بدأ الشوط الأول',[100]); save(); render(); };
+  TF.arm(0,4,t); announce(tr('anFirst'),[100]); save(); render(); };
 /* pocket mode: black screen, long-press to leave */
 (function(){ const pk=$('pocket'), h=$('pkH'); let tm=null;
   $('bPocket').onclick=()=>{ pk.hidden=false; render(); keepAwake(); };
@@ -808,21 +845,31 @@ $('bHere').onclick=()=>{ const t=Eng.now();
   pk.addEventListener('contextmenu',e=>e.preventDefault());
 })();
 $('bSai').onclick=()=>{ startSai(Eng.now()); save(); render(); };
-const needFix=()=>{ if(!PF.ready){ banner('لا يوجد موقع حالي بعد. شغّل التتبع وانتظر الإشارة ثم أعد المحاولة.'); return false; } return true; };
-$('bCalBlack').onclick=()=>{ if(!needFix()) return; S.startB=Math.round(bearingOf(PF.pos())); banner('حُفظ خط البداية على '+AR(S.startB)+'°'); save(); render(); };
-$('bCalSafa').onclick=()=>{ if(!needFix()) return; S.safa=toLL(PF.pos()); banner('حُفظ موقع الصفا.'); save(); render(); };
-$('bCalMarwa').onclick=()=>{ if(!needFix()) return; S.marwa=toLL(PF.pos()); banner('حُفظ موقع المروة.'); save(); render(); };
+const needFix=()=>{ if(!PF.ready){ banner(tr('bnNoFix')); return false; } return true; };
+$('bCalBlack').onclick=()=>{ if(!needFix()) return; S.startB=Math.round(bearingOf(PF.pos())); banner(tr('bnLine',N(S.startB))); save(); render(); };
+$('bCalSafa').onclick=()=>{ if(!needFix()) return; S.safa=toLL(PF.pos()); banner(tr('bnSafa')); save(); render(); };
+$('bCalMarwa').onclick=()=>{ if(!needFix()) return; S.marwa=toLL(PF.pos()); banner(tr('bnMarwa')); save(); render(); };
 $('startB').onchange=e=>{ const v=+e.target.value; if(v>=0&&v<360){ S.startB=v; save(); render(); } };
 $('voice').onchange=e=>{ S.mode=e.target.value; save(); };
-let armReset=0;
 $('bReset').onclick=()=>{
   const b=$('bReset');
-  if(Date.now()-armReset>4000){ armReset=Date.now(); b.textContent='اضغط مرة ثانية للتأكيد'; setTimeout(()=>b.textContent='عمرة جديدة (تصفير الكل)',4000); return; }
-  stopSim(); Object.assign(S,fresh(),keepSettings()); TF.armed=false; Eng.resetRuntime();
-  b.textContent='عمرة جديدة (تصفير الكل)'; banner(''); save(); render(); };
+  if(Date.now()-armReset>4000){ armReset=Date.now(); resetArmed=true; b.textContent=tr('bResetConfirm'); setTimeout(()=>{ resetArmed=false; b.textContent=tr('bReset'); },4000); return; }
+  Object.assign(S,fresh(),keepSettings()); TF.armed=false; Eng.resetRuntime(); resetArmed=false;
+  b.textContent=tr('bReset'); banner(''); save(); render(); };
+/* language */
+function applyLang(){
+  const html=document.documentElement; html.lang=S.lang; html.dir=S.lang==='ar'?'rtl':'ltr';
+  document.title=tr('title');
+  document.querySelectorAll('[data-i]').forEach(el=>{ el.textContent=tr(el.dataset.i); });
+  document.querySelectorAll('[data-ih]').forEach(el=>{ el.innerHTML=tr(el.dataset.ih); });
+  cv.setAttribute('aria-label',tr('sceneAria')); $('pocket').setAttribute('aria-label',tr('pocketAria'));
+  $('bLang').textContent=tr('otherLang'); $('bLang').lang=S.lang==='ar'?'en':'ar';
+  buildLib(); lastNum=null; banner(''); render();
+}
+$('bLang').onclick=()=>{ S.lang=S.lang==='ar'?'en':'ar'; save(); applyLang(); };
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',readTokens);
 
-Scene.init(); render(); requestAnimationFrame(loop);
-window.__umrah={S,Eng,TF,Sim};
+Scene.init(); applyLang(); requestAnimationFrame(loop);
+window.__umrah={S,Eng,TF};
 })();
 </script>
